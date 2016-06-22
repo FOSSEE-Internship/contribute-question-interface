@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Yaksh | {{ title }}</title>
+</head>
+<body>
+	<ul>
+	{% for each in question_ratings %}
+		
+		<li>
+		{{ each.Question.text }}
+		<ul>
+		{% for each_rating in each.Ratings %}
+			<li> 
+			
+			{{ each_rating.rate }} by {{ each_rating.user }}
+			
+
+			
+			</li>
+		{% endfor %}
+		</ul>
+		</li>
+
+	{% endfor %}
+
+	</ul>
+</body>
+</html>

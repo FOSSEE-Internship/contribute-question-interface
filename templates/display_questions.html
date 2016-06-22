@@ -1,0 +1,21 @@
+	<!DOCTYPE html>
+<html>
+<head>
+	<title> Yaksh</title>
+</head>
+<body>
+	<h2>List of Questions: </h2>
+	<a href="addmcq/" ><button>Add MCQ</button></a> | <a href="addcq/" ><button>Add CQ</button></a>
+
+	<ul>
+	{% for each in questions %}
+		<li>
+		<a href="{{each.id }}" >{{ each.text }}</a>	
+		
+		</li>
+
+	{% endfor %}
+
+	</ul>
+</body>
+</html>

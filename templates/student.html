@@ -1,0 +1,118 @@
+<html>
+<body>
+<h3>Question: {{ question.title|safe }}</h3>
+Creator: {{ question.user }}<br />
+
+<ul>
+	{% for each in question_choices %}
+		<li>
+		{{ each.Question.text }}
+		<ul>
+		{% for each_choice in each.Choices %}
+			<li> 
+			
+			{% if each_choice.correct %}
+			<b><u>
+			{% endif %}
+
+			{{ each_choice.text }} 
+
+			</u></b>
+			</li>
+		{% endfor %}
+		</ul>
+		</li>
+
+	{% endfor %}
+
+	</ul>
+
+<ul>
+	{% for each in question_testcases %}
+		<li>
+		{{ each.Question.text }}
+		<ul>
+		
+		{% for testcase in each.Testcases %}
+		<b>Testcase</b>
+		<ul>
+		Input:
+		{% for input in testcase.input %}
+				<li>{{input.value}}</li>
+		{% endfor %}
+		</ul>
+
+		<ul>
+		Output:
+		{% for output in testcase.output %}
+			<li>{{ output.value }}</li>
+		{% endfor %}
+		</ul>
+
+		{% endfor %}
+		
+		
+		</ul>
+		</li>
+
+	{% endfor %}
+
+	</ul>
+<h3>Ratings</h3>
+<ul>
+	{% for each in question_ratings %}
+		
+		
+		{% for each_rating in each.Ratings %}
+			<li> 
+			
+			{{ each_rating.get_rate_display }} by {{ each_rating.user }}
+			
+
+			
+			</li>
+		{% endfor %}
+		
+
+	{% endfor %}
+
+	</ul>
+<h3>Reviews</h3>
+<ul>
+	{% for each in question_reviews %}
+		
+		
+		{% for each_review in each.Reviews %}
+			<li> 
+			
+			{{ each_review.comments}} by {{ each_review.reviewer }}
+			
+
+			
+			</li>
+		{% endfor %}
+		
+
+	{% endfor %}
+
+	</ul>
+<h3>Your opinion: </h3>
+<form action="postcomment/" method="post">
+{% csrf_token %}
+<p>
+Comment:
+<textarea name="content" cols=20 rows=4></textarea><br/>
+Rating:
+<select name="rating">
+<option selected disabled hidden>select</option>
+<option value="1">Poor</option>
+<option value="2">Average</option>
+<option value="3">Good</option>
+<option value="4">Very Good</option>
+<option value="5">Excellent</option>
+</select>
+</p>
+<input type="submit" value="Post" action="student.html"/>
+</form>
+</body>
+</html>

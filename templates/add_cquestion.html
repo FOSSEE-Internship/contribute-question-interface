@@ -1,0 +1,100 @@
+{% extends "navigation.html" %}
+{% block content %}
+	<form method="post" onsubmit="return validateForm();">
+	
+	<h2>Add Code Question</h2>
+	<table id="ok">
+		{{ form.as_table }}
+	<tr><td><b>No of test cases: </b></td><td> <input type="number" id="id_no_of_testcases" name="no_of_testcases"  value="0" /></td></tr>
+	<tbody id="testcase_container" ></tbody>
+	<tr><td></td><td> <input type="Submit" value="Submit" /></td></tr>
+	</table>
+	{% csrf_token %}
+	</form>
+
+
+<script src="https://code.jquery.com/jquery-1.7.min.js" integrity="sha256-/05Jde9AMAT4/o5ZAI23rUf1SxDYTHLrkOco0eyRV84=" crossorigin="anonymous"></script>	
+<script type='text/javascript'>
+$(document).ready( function() {
+$('#id_title').on('focus', addFields);
+$('#id_no_of_testcases').on('change', addFields);
+});
+function addFields(){
+	var ch = document.getElementById("id_no_of_testcases").value;
+	var container = document.getElementById("testcase_container");
+	script=""
+	for(var i=1;i<=ch;i++){
+		script+="<tr><td><b>Test Case "+i+"</b></td><td>\n\n<table><tr><td>  <input type='number' id='testcase"+i+"_input' onchange=\"update_testcase('testcase"+i+"');\" name='testcase"+i+"_input' value=0 placeholder='Testcase "+i+" input' /></td>\n<td>  <input type='number' id='testcase"+i+"_output' value=0 onchange=\"update_testcase('testcase"+i+"');\" name='testcase"+i+"_output' placeholder='Testcase "+i+" output' /> </td></tr> <tbody id='testcase"+i+"_container' ></tbody></table>\n\n</td></tr>\n"
+	}
+	container.innerHTML=script;
+};
+function update_testcase(ts_id){
+	var input=document.getElementById(ts_id+"_input").value;
+	var output=document.getElementById(ts_id+"_output").value;
+	var container=document.getElementById(ts_id+"_container");
+	max=input;
+	if (output>max){
+		max=output
+	}
+	script=""
+	console.log(max);
+	for (var i=1;i<=max;i++){
+		script+="<tr><td>\n"
+		if (i<=input){
+			script+="\tType: <select name='"+ts_id+"_input_"+i+"_type'><option value='1'>Integer</option><option value='2'>Float</option><option value='3'>String</option><option value='4'>Boolean</option></select><br />\n";
+			script+="\t<input name='"+ts_id+"_input_"+i+"_value' type='text' placeholder='"+ts_id+" input "+i+"'  />\n";
+		}
+		script+="</td><td>\n"
+		if (i<=output){
+			script+="\tType: <select name='"+ts_id+"_output_"+i+"_type'><option value='1'>Integer</option><option value='2'>Float</option><option value='3'>String</option><option value='4'>Boolean</option></select><br />\n";
+			script+="\t<input name='"+ts_id+"_output_"+i+"_value' type='text' placeholder='"+ts_id+" output "+i+"'/>\n";
+		}
+		script+="</td></tr>\n"
+	}
+	container.innerHTML=script;
+	//alert(script);
+};
+function validateForm(){
+			title =  document.getElementById("id_title").value;
+			if (title==""){
+				alert("Enter question title");
+				return false;
+			}
+			
+			function_name = document.getElementById("id_function_name").value;
+			if (function_name==""){
+				alert("Enter function name");
+				return false;
+			}
+			marks = document.getElementById("id_marks").value;
+			if (marks<0){
+				alert("Marks should be positive");
+				return false;
+			}
+			no_of_inputs = document.getElementById("id_no_of_testcases").value;
+			if (no_of_inputs<0){
+				alert("No of testcases should be positive");
+				return false;
+			}
+			count = 0;
+			for(var i=1;i<=no_of_inputs;i++){
+				input_text=document.getElementById("testcase"+i+"_input").value;
+				if (input_text<1){
+					alert("Enter valid input for testcase "+i);
+					return false;
+				}
+				output_text=document.getElementById("testcase"+i+"_output").value;
+				if (output_text<1){
+					alert("Enter valid output for testcase "+i);
+					return false;
+				}
+			}
+			
+}
+</script>
+<ul class="pager">
+    <li><a href="/questions/addmcq">Previous</a></li>
+    <li><a href="/questions/(?P<id>\d+)/">Next</a></li>
+  </ul>
+
+{% endblock %}

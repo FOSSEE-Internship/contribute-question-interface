@@ -1,0 +1,19 @@
+	<!DOCTYPE html>
+<html>
+<head>
+	<title> Yaksh</title>
+</head>
+<body>
+	<h2>List of Questions: </h2>
+	<ul>
+	{% for each in questions %}
+		<li>
+		<a href="{{each.id }}" >{{ each.text }}</a>	
+		
+		</li>
+
+	{% endfor %}
+
+	</ul>
+</body>
+</html>
