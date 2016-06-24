@@ -1,8 +1,13 @@
-<html>
-<body>
+{% extends "navigation.html" %}
+{% block navbar %}
+<li class="active"><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'next_login' %}">Contribution</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+ {% endblock %}
+{% block content %}
+
 <h3>Question: {{ question.title|safe }}</h3>
 Creator: {{ question.user }}<br />
-
 <ul>
 	{% for each in question_choices %}
 		<li>
@@ -60,51 +65,44 @@ Creator: {{ question.user }}<br />
 	</ul>
 <h3>Ratings</h3>
 <ul>
+	{% if ratings_empty %}
+	<li>Not yet rated</li>
+	{% else %}
 	{% for each in question_ratings %}
-		
-		
 		{% for each_rating in each.Ratings %}
 			<li> 
-			
 			{{ each_rating.get_rate_display }} by {{ each_rating.user }}
-			
-
-			
 			</li>
 		{% endfor %}
-		
-
 	{% endfor %}
-
+	{% endif %}
 	</ul>
 <h3>Reviews</h3>
 <ul>
+	{% if reviews_empty %}
+	<li>Not yet reveiwed</li>
+	{% else %}
 	{% for each in question_reviews %}
-		
-		
 		{% for each_review in each.Reviews %}
 			<li> 
-			
 			{{ each_review.comments}} by {{ each_review.reviewer }}
-			
-
-			
 			</li>
 		{% endfor %}
-		
-
 	{% endfor %}
-
+	{% endif %}
 	</ul>
 <h3>Your opinion: </h3>
-<form action="postcomment/" method="post">
+<form action="../postcomment/" method="post"  onsubmit="return validate();">
+<input type="hidden" name="id" value="{{ question.id}}" />
+<input type="hidden" name="rate_type" value="{{rate_type}}" />
+ <table>
 {% csrf_token %}
 <p>
 Comment:
-<textarea name="content" cols=20 rows=4></textarea><br/>
+<textarea name="content" id="content" cols=20 rows=4></textarea><br/>
 Rating:
-<select name="rating">
-<option selected disabled hidden>select</option>
+<select name="rating" id="rating">
+<option selected disabled hidden value=0>Select rating</option>
 <option value="1">Poor</option>
 <option value="2">Average</option>
 <option value="3">Good</option>
@@ -112,7 +110,23 @@ Rating:
 <option value="5">Excellent</option>
 </select>
 </p>
-<input type="submit" value="Post" action="student.html"/>
-</form>
-</body>
-</html>
+<input type="submit" value="Post" class="btn btn-primary"/>
+</table>
+</form><script type="text/javascript ">
+function validate(){
+	content=document.getElementById("content").value;
+	rating=document.getElementById("rating").value;
+	if (content==""){
+		alert("Please enter review");
+		return false;
+	}
+	else if (rating==0){
+		alert("Please choose rating");
+		return false;
+	}
+	return true;
+}
+</script>
+
+
+{% endblock %}

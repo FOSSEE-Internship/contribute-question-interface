@@ -1,12 +1,26 @@
-{% extends "base.html" %}
+
+{% extends "navigation.html" %}
 {% block title %}User Registration{% endblock %}
 {% block head %}User Registration{% endblock %}
+
+{% block navbar %}
+ <li class="active"><a href="{% url 'home' %}">Home</a></li>
+ <li><a href="{% url 'login' %}">Login</a></li>
+   
+      <li><a href="{% url 'register_page' %}">Signup</a></li>
+     
+  {% endblock %}
 {% block content %}
+
+<center>
+ <h3>Register here</h3>
     <form method="post" action=".">{% csrf_token %}
         <table border="0">
             {{ form.as_table }}
         </table>
-        <input type="submit" value="Register" />
-    </form>
+        </br>
+        <input type="submit" class="btn btn-primary" value="Register" />
+    </form></br>
     <a href="/">Login</a>
+    </center>
 {% endblock %}

@@ -1,7 +1,29 @@
-<html>
-<body>
+{% extends "navigation.html" %}
+
+{% block navbar %}
+<li class="active"><a href="{% url 'home' %}">Home</a></li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Show Questions <span class="caret"></span></a>
+<ul class="dropdown-menu">
+<li><a href="{% url 'mod_show_mcq' %}" >Unapproved MCQ</a></li>
+<li><a href="{% url 'mod_show_cq' %}" >Unapproved CQ</a></li>
+<li><a href="{% url 'mod_show_approved_mcq' %}">Approved MCQ</a></li>
+<li><a href="{% url 'mod_show_approved_cq' %}">Approved CQ</a></li>
+</ul>
+</li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+ {% endblock %}
+{% block content %}
 <h3>Question: {{ question.title|safe }}</h3>
-Creator: {{ question.user }}<br />
+<b>Creator</b>: {{ question.user }}<br />
+<b>Avg. Rating</b> {{ question.avg_rating }}<br />
+{% ifequal question.status 1 %}
+<b>Status: <u>Approved</u></b>  <button class="btn btn-danger" onclick="window.location='approve/';"  >Disapprove </button><br/>
+{% else %}
+<b>Status: <u>Unseen</u></b>  <button class="btn btn-primary" onclick="window.location='approve/';" >Approve </button><br/>
+{% endifequal %}
+<br />
+<h3>Question</h3>
 <ul>
 	{% for each in question_choices %}
 		<li>
@@ -58,6 +80,9 @@ Creator: {{ question.user }}<br />
 	</ul>
 <h3>Ratings</h3>
 <ul>
+	{% if ratings_empty %}
+	<li>Not yet rated</li>
+	{% else %}
 	{% for each in question_ratings %}
 		
 		
@@ -73,10 +98,14 @@ Creator: {{ question.user }}<br />
 		
 
 	{% endfor %}
-
+	{% endif %}
 	</ul>
 <h3>Reviews</h3>
 <ul>
+
+	{% if reviews_empty %}
+	<li>Not yet reviewed</li>
+	{% else %}
 	{% for each in question_reviews %}
 		
 		
@@ -92,24 +121,31 @@ Creator: {{ question.user }}<br />
 		
 
 	{% endfor %}
-
+	{% endif %}
 	</ul>
 
 <p>
-{% ifequal question.status 1 %}
-Status: <b>Approved</b> <button onclick="window.location='approve/';" >Disapprove </button><br/><br />
-{% else %}
-Status: <button onclick="window.location='approve/';" >Approve </button><br/>
-{% endifequal %}
+
+
 <br />
-<form action="postcomment/" method="post">
-<input type="hidden" name="type" value="moderator" />
+<form action="postcomment/" method="post" onsubmit="return validate();">
+<input type="hidden" name="type" class="btn btn-primary" value="moderator" />
 Comments:
-<textarea name="content" cols=30 rows=2></textarea><br/>
-<input type="submit" value="Post" action="moderator.html"/>
+<textarea name="content" id="content"  cols=30 rows=2></textarea><br/>
+<input type="submit" value="Post" class="btn btn-primary"/>
 {% csrf_token %}
 
 </form>
 </p>
-</body>
-</html>
+<script type="text/javascript ">
+function validate(){
+	content=document.getElementById("content").value;
+	if (content==""){
+		alert("Please enter review");
+		return false;
+	}
+	return true;
+}
+</script>
+
+{% endblock  %}

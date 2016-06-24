@@ -10,8 +10,6 @@
 	<h2>Add Code Question</h2>
 	<table id="ok">
 		{{ form.as_table }}
-	<tr><td><b>No of inputs: </b></td><td> <input type="number" id="id_no_of_inputs" name="no_of_inputs"  value="2" /></td></tr>
-	<tr><td><b>No of outpus: </b></td><td> <input type="number" id="id_no_of_outputs" name="no_of_outputs"  value="2" /></td></tr>
 	<tr><td><b>No of test cases: </b></td><td> <input type="number" id="id_no_of_testcases" name="no_of_testcases"  value="0" /></td></tr>
 	<tbody id="testcase_container" ></tbody>
 	<tr><td></td><td> <input type="Submit" class="btn btn-primary"value="Submit" /></td></tr>
@@ -25,32 +23,26 @@
 $(document).ready( function() {
 $('#id_title').on('focus', addFields);
 $('#id_no_of_testcases').on('change', addFields);
-$('#id_no_of_inputs').on('change', addFields);
-$('#id_no_of_outputs').on('change', addFields);
 });
 function addFields(){
 	var ch = document.getElementById("id_no_of_testcases").value;
 	var container = document.getElementById("testcase_container");
 	script=""
 	for(var i=1;i<=ch;i++){
-		script+="<tr><td><b>Test Case "+i+"</b></td><td>\n\n<table style='margin-top:20px;margin-bottom:10px;border:1px;'><tbody id='testcase"+i+"_container' ></tbody></table>\n\n</td></tr>"	
-		
+		script+="<tr><td><b>Test Case "+i+"</b></td><td>\n\n<table><tr><td>  <input type='number' id='testcase"+i+"_input' onchange=\"update_testcase('testcase"+i+"');\" name='testcase"+i+"_input' value=0 placeholder='Testcase "+i+" input' /></td>\n<td>  <input type='number' id='testcase"+i+"_output' value=0 onchange=\"update_testcase('testcase"+i+"');\" name='testcase"+i+"_output' placeholder='Testcase "+i+" output' /> </td></tr> <tbody id='testcase"+i+"_container' ></tbody></table>\n\n</td></tr>\n"
 	}
 	container.innerHTML=script;
-	for(var i=1;i<=ch;i++){
-		update_testcase('testcase'+i);
-	}
-	
 };
 function update_testcase(ts_id){
-	var input=document.getElementById("id_no_of_inputs").value;
-	var output=document.getElementById("id_no_of_outputs").value;
+	var input=document.getElementById(ts_id+"_input").value;
+	var output=document.getElementById(ts_id+"_output").value;
 	var container=document.getElementById(ts_id+"_container");
 	max=input;
 	if (output>max){
 		max=output
 	}
 	script=""
+	console.log(max);
 	for (var i=1;i<=max;i++){
 		script+="<tr><td>\n"
 		if (i<=input){
@@ -65,7 +57,7 @@ function update_testcase(ts_id){
 		script+="</td></tr>\n"
 	}
 	container.innerHTML=script;
-
+	//alert(script);
 };
 function validateForm(){
 			title =  document.getElementById("id_title").value;

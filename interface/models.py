@@ -57,6 +57,8 @@ class Question(models.Model):
 	marks = models.IntegerField(default=0)
 	status = models.IntegerField(default=0, choices=question_status_choice)
 	user = models.ForeignKey(User,default=0)
+	avg_rating=models.IntegerField(default=0)
+	
 	def __str__(self):
 		return  self.text
 	

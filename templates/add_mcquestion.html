@@ -1,6 +1,11 @@
 {% extends "navigation.html" %}
-
+{% block navbar %}
+<li class="active"><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'next_login' %}">Contribution</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+ {% endblock %}
 {% block content %}
+
 	<form method="post" onsubmit="return validateForm();" onpageshow="addFields();">
 	<h2>Add Multiple Choice Question</h2>
 	<table id="ok">
@@ -56,7 +61,7 @@
 	</div><br /><br />
 		{% csrf_token %}
 
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" value="Submit"  /></td></tr>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" class="btn btn-primary" value="Submit" /></td></tr>
 
 	</form>
 	<script type="text/javascript">
@@ -98,10 +103,7 @@
 					
 		}
 	</script>
-	<ul class="pager">
-    <li><a href="/questions/">Previous</a></li>
-    <li><a href="/questions/addcq/">Next</a></li>
-  </ul>
+
   {% endblock %}
 
 
