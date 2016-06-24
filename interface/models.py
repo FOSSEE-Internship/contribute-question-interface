@@ -107,6 +107,7 @@ class Rating(models.Model):
 	
 	def __str__(self):	
 		return str(self.user)
+		
 	class Meta:
 		unique_together = ('user', 'question',) 
 
@@ -120,8 +121,8 @@ class Review(models.Model):
 	
 	def update_review(self,new_comments):
 		self.comments=new_comments
-	class Meta:
-		unique_together = ('reviewer', 'question',) 
+	#class Meta:
+	#	unique_together = ('reviewer', 'question',) 
 
 
 

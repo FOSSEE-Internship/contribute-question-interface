@@ -29,19 +29,12 @@ def register(request):
             return render(request,'notice.html',{'notice':"<b>Thank you !</b> Your registration success.<br /> <a href=\"/login\" >Login</a>"})
     else:
         form = RegistrationForm()
-    variables = RequestContext(request, {
-    'form': form
-    })
+    variables = RequestContext(request, {'form': form})
  
-    return render_to_response(
-    'registration/register.html',
-    variables,
-    )
+    return render_to_response('registration/register.html', variables)
 
 def register_success(request):
-    return render_to_response(
-    'registration/success.html'
-    )
+    return render_to_response('registration/success.html')
  
 def logout_page(request):
     logout(request)
@@ -58,12 +51,8 @@ def show_questions_stu(request):
 				"questions" : questions,
 			          }
 			return render(request, "display_questions.html", context)
-
-
 	else:
 		return HttpResponseRedirect(reverse('login'))
-
-	
 
 def show_questions_mod_mcq(request):
 
@@ -120,7 +109,6 @@ def show_questions_mod_cq(request):
 
 	if request.user.is_authenticated():
 		
-
 		groups = request.user.groups.values_list('name', flat=True)
 		if ('admin' in groups or 'moderator' in groups):   
 			questions = CodeQuestion.objects.filter(status=0).order_by('-avg_rating')
@@ -138,7 +126,6 @@ def show_questions_mod_approved_cq(request):
 
 	if request.user.is_authenticated():
 		
-
 		groups = request.user.groups.values_list('name', flat=True)
 		if ('admin' in groups or 'moderator' in groups):   
 			questions = CodeQuestion.objects.filter(status=1).order_by('-avg_rating')
@@ -156,7 +143,6 @@ def show_questions_mod_approved_cq(request):
 def base(request):
 
 	return render(request,'navigation.html')
-
 
 def add_mcquestion(request):
 
@@ -206,7 +192,6 @@ def add_cquestion(request):
 				return render(request, "add_cquestion.html", {"form": form }) 
 			no_of_testcases = request.POST.get('no_of_testcases')
 
-			## New Code
 			inputs = request.POST.get('no_of_inputs')
 			outputs = request.POST.get('no_of_outputs')
 			for i in range(1, int(no_of_testcases)+1):
@@ -224,25 +209,7 @@ def add_cquestion(request):
 					output_instance =Output(_type=ts_type, value=ts_value, test_cases=testcase)
 					output_instance.save()
 
-			""" ## Old Code
-			for i in range(1, int(no_of_testcases)+1):
-				inputs = request.POST.get('testcase'+str(i)+'_input')
-				outputs = request.POST.get('testcase'+str(i)+'_output')
-				testcase = TestCase(no_of_inputs=inputs, no_of_outputs=outputs, question=instance)
-				testcase.save()
-				for j in range(1,int(inputs)+1):
-					ts_type = request.POST.get('testcase'+str(i)+'_input_'+str(j)+'_type')
-					ts_value = request.POST.get('testcase'+str(i)+'_input_'+str(j)+'_value')
-					input_instance = Input(_type=ts_type, value=ts_value, test_cases=testcase)
-					input_instance.save()
-
-				for j in range(1,int(outputs)+1):
-					ts_type = request.POST.get('testcase'+str(i)+'_output_'+str(j)+'_type')
-					ts_value = request.POST.get('testcase'+str(i)+'_output_'+str(j)+'_value')
-					output_instance =Output(_type=ts_type, value=ts_value, test_cases=testcase)
-					output_instance.save()
-			""" # Old Code ends here
-			return render(request,'notice.html',{'notice':"Thank you for your contribution <br><a href='/logout'>Logout</a>"})
+			return render(request,'notice.html',{'notice':"Thank you for your contribution."})
 		else:
 			form = CodeQuestionForm()
 			return render(request, "add_cquestion.html", {"form": form})
@@ -299,7 +266,6 @@ def approve_questions(request,id=None):
 		                }
 		result_set3.append(question_dict)
 
-
 	questions = CodeQuestion.objects.filter(id=id)
  	result_set4 = []
 	for ques in questions:
@@ -332,8 +298,8 @@ def approve_questions(request,id=None):
 
 	return render(request, "moderator.html", context)
 
-
 def approve_questions_accept(request,id=None):
+
 	question = get_object_or_404(Question,pk=id)
 	if question.status==1:
 		question.status=0
@@ -343,6 +309,7 @@ def approve_questions_accept(request,id=None):
 	return HttpResponseRedirect("../")	
 
 def show_reviews(request):	
+
 	questions = Question.objects.all()
 	result_set = []	
 	for ques in questions:
@@ -358,6 +325,7 @@ def show_reviews(request):
 	return render(request, "display_review.html", context)
 	
 def show_ratings(request):
+
 	questions = Question.objects.all()
 	result_set = []	
 	for ques in questions:
@@ -453,6 +421,11 @@ def post_comment(request,id):
 		user_type=request.POST.get("type")
 		rate_type=request.POST.get("rate_type")
 		user=request.user.id
+		question = get_object_or_404(Question,pk=id)
+		if (user_type=='moderator'):
+			instance = Review(reviewer_id=user, question=question, comments=comment)
+			instance.save()
+			return HttpResponseRedirect("../")
 		try:
 			instance = get_object_or_404(Review, reviewer=user, question=id)
 			return render(request,'notice.html',{'notice':"<b>Sorry !</b> You have already commented on this question.<br /><a href=\"../\" >Go back</a>"})
@@ -462,10 +435,9 @@ def post_comment(request,id):
 				instance = get_object_or_404(Rating, user=user, question=id)
 				return render(request,'notice.html',{'notice':"<b>Sorry !</b> You have already rated this question.<br /> <a href='../'>Go back</a>"})
 			except Exception, e:
-				question = get_object_or_404(Question,pk=id)
-				if (user_type!='moderator'):
-					instance = Rating(user_id=user, question=question, rate=rating)
-					instance.save()
+				
+				instance = Rating(user_id=user, question=question, rate=rating)
+				instance.save()
 				instance = Review(reviewer_id=user, question=question, comments=comment)
 				instance.save()
 				if (rate_type=='rate_mcq'):
@@ -512,7 +484,6 @@ def rate_post(request):
 						question.avg_rating = 0
 					question.save()
 
-
 				instance = Review(reviewer_id=user, question=question, comments=comment)
 				instance.save()
 				if (rate_type=='rate_mcq'):
@@ -521,7 +492,6 @@ def rate_post(request):
 					return HttpResponseRedirect(reverse('add_mcq'))
 				return render(request,'notice.html',{'notice':"<b>Thank you !</b> You have rated this question.<br /> <a href=\"/\" >Go back</a>"})
 				
-
 	else:
 		return HttpResponseRedirect("../")
 	
@@ -624,7 +594,9 @@ def rate_mcq(request):
 				return HttpResponseRedirect(reverse('rate_cq'))
 	else:
 		return render(request, 'home.html',{'type':'guest'})
+
 def rate_cq(request):
+	
 	if request.user.is_authenticated():
 		groups = request.user.groups.values_list('name', flat=True)
 		if ('admin' in groups or 'moderator' in groups):   

@@ -14,9 +14,9 @@
 <li><a href="{% url 'logout_page' %}">Logout</a></li>
  {% endblock %}
 {% block content %}
-<h3>Question: {{ question.title|safe }}</h3>
-<b>Creator</b>: {{ question.user }}<br />
-<b>Avg. Rating</b> {{ question.avg_rating }}<br />
+<h3>Title: {{ question.title|safe }}</h3>
+<b>Creator : </b> {{ question.user }}<br />
+<b>Avg. Rating : </b> {{ question.avg_rating }}<br />
 {% ifequal question.status 1 %}
 <b>Status: <u>Approved</u></b>  <button class="btn btn-danger" onclick="window.location='approve/';"  >Disapprove </button><br/>
 {% else %}

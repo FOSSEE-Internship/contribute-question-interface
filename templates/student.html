@@ -6,8 +6,10 @@
  {% endblock %}
 {% block content %}
 
-<h3>Question: {{ question.title|safe }}</h3>
-Creator: {{ question.user }}<br />
+<h3>Title: {{ question.title|safe }}</h3>
+<b>Creator : </b> {{ question.user }}<br />
+<b>Avg. Rating : </b> {{ question.avg_rating }}<br />
+<h3>Question</h3>
 <ul>
 	{% for each in question_choices %}
 		<li>
