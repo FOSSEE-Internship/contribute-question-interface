@@ -11,9 +11,8 @@
 
 	+ User Application
 		+ 64 MB RAM (RECOMMENDED)
-		+ 100 MB free fixed disk  
 		+ LAN,Internet Connection
-		+ Windows 7 (or Newer Versions), Any Linux OS
+		+ Any Linux OS
 
 ---------------------------------------------------------------
 
