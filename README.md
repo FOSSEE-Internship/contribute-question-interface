@@ -61,9 +61,6 @@
 		Step 2: In Linux open Terminal and go to "yaksh" folder directory
 		Step 3: Then you can application by command 
 				>> python manage.py runserver
-
---------------------------------------------------------------
-** The Prototype version may be prone to some errors. They are expected to be rectified in the upcoming versions of the applications
 --------------------------------------------------------------
 
 			Thank U for your support
