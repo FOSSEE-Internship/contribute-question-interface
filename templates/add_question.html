@@ -1,0 +1,62 @@
+{% extends "navigation.html" %}
+{% block script %}
+ <script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"/>
+ 
+ {% endblock %}
+
+{% block navbar %}
+<li class="active"><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'show_all_questions' %}">Contribution</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+ {% endblock %}
+
+{% block pagetitle %} Add Question {% endblock pagetitle %}
+
+{% block onload %} onload='javascript:textareaformat();' {% endblock %}
+
+{% block content %}
+<script>
+  $(document).ready(function(){
+$('#id_description').bind('keypress', function (event){
+    document.getElementById('my').innerHTML = document.getElementById('id_description').value ;
+  });
+
+  $('#id_solution').bind('keypress', function (event){
+    document.getElementById('rend_solution').innerHTML = document.getElementById('id_solution').value ;
+  });
+});
+ </script>
+<form action="{{ URL_ROOT }}/addquestion/{{ question.id }}/" method="post" name=frm enctype="multipart/form-data">
+  {% csrf_token %}
+  <center><table class="table">
+  <tr><td>Summary: <td>{{ qform.summary }}{{ qform.summary.errors }}
+  <tr><td>Points:<td>{{qform.points }}{{ qform.points.errors }} 
+    <tr><td><strong>Rendered: </strong><td><p id='my'></p>
+  <tr><td>Description: <td>{{ qform.description}}  {{qform.description.errors}}
+  <tr><td><strong>Rendered Solution: </strong><td><p id='rend_solution'></p>
+  <tr><td>Solution: <td>{{ qform.solution }}{{qform.solution.errors}}
+  <tr><td>Citation: <td>{{ qform.citation }}{{qform.citations.errors}}
+  <tr><td>Originality: <td>{{ qform.originality }} {{qform.citations.errors}}
+  </table></center>
+  {% for formset in formsets %}
+  <div class="form-group">
+      {{ formset.management_form }}
+
+      {% for form in formset %}
+        <div class="link-formset well">
+            {{ form.as_p }}
+        </div>
+      {% endfor %}
+
+  </div>
+  {% endfor %}
+  <p><label for="case_type">Add Test Case:</label> <select id="case_type" name="case_type" onchange="frm.submit()">
+      <option value="" selected="selected">---------</option>
+      <option value="stdiobasedtestcase">StdIO </option>
+  </select></p>
+  <center>
+    <button class="btn" type="submit" name="save_question">Save</button>
+    <button class="btn" type="button" name="button" onClick='location.replace("{{URL_ROOT}}/showquestions/");'>Back to Questions</button>
+  </center>
+</form>
+{% endblock %}
