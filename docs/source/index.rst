@@ -1,0 +1,66 @@
+.. Question Contribution documentation master file, created by
+
+Welcome to Question Contribution's documentation!
+=================================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+Login & Register
+----------------
+
+	1. Click on the **Register** button on the main page.
+	2. After registration login with the username and password
+
+
+Creating Questions
+------------------
+	
+	.. note::  You are allowed to create only 5 questions. You can edit and delete questions though.
+
+	1. After login click on **Start Contribution** button to start creating questions.
+	2. On the contribution interface you can view all your questions.
+	3. To delete a question Select the question and click on **Delete Question** button.
+	.. note::  Once deleted, a question cannot be  retrieved back. Please take caution before deletion.
+	4. Click on **Add Question** button to create a new question.
+	5. Below image shows an example of creating a question
+			.. figure:: images/create_questions.jpg
+
+		Fields to fill while creating questions
+		
+		* **Summary**- Short summary or the name of the question. Cannot be more than 256 characters.
+
+		* **Points** - Points is the marks for a question. It can be in decimal digits.
+
+		* **Description** - Write the actual question here. One can use HTML tags to format question text.
+
+			.. note::  To add code snippets in question description please use html <code> and <br> tags.
+
+		* **Solution** - It is the correct expected answer of the question. Please follow Python syntaxes here.
+			For e.g. :: 
+
+				a = input()
+				b = input()
+				print(a+b) 
+
+		* **Citation** - Mention the reference url of the question if the question is adapated. Please make sure to cite the original source of the question if it is not a original question.
+
+			.. note:: Leave the field blank if the question is original.
+
+		* **Originality** - Specify whether the question is **Original Question** or **Adapted Question**
+
+	6. Below image shows an example of how to create test cases.
+			.. figure:: images/create_testcases.jpg
+
+		In **Expected input** field, enter the value(s) that will be passed to the code through a standard I/O stream.
+
+			.. note::  If there are multiple input values in a test case, enter the values in new line as shown in figure.
+
+		In **Expected Output** Field, enter the expected output for that test case. For e.g type 3 if the output of the user code is 3.
+
+		To delete a test case Select **Delete** checkbox and click on **Check and Save** to delete the testcase and save the question.
+
+
+

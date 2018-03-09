@@ -35,8 +35,8 @@ $('#id_description').bind('keypress', function (event){
   <tr><td>Description: <td>{{ qform.description}}  {{qform.description.errors}}
   <tr><td><strong>Rendered Solution: </strong><td><p id='rend_solution'></p>
   <tr><td>Solution: <td>{{ qform.solution }}{{qform.solution.errors}}
-  <tr><td>Citation: <td>{{ qform.citation }}{{qform.citation.errors}}
-  <tr><td>Originality: <td>{{ qform.originality }} {{qform.citations.errors}}
+  <tr><td>Citation: <td>{{ qform.citation }}{{qform.citations.errors}}
+  <tr><td>Originality: <td>{{ qform.originality }} {{qform.originality.errors}}
   </table></center>
   {% for formset in formsets %}
   <div class="form-group">
