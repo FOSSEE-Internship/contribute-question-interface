@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 import json
+import os
 
 question_status_choice = (
         (1, "approved"),
@@ -94,6 +95,7 @@ class Question(models.Model):
         metadata['partial_grading'] = False
         question_data['metadata'] = metadata
         return json.dumps(question_data)
+
 
 class TestCase(models.Model):
     question = models.ForeignKey(Question, blank=True, null=True)

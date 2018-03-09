@@ -14,6 +14,7 @@ from random import choice
 from urllib.parse import urljoin
 import requests
 import json
+import os
 
 def show_home(request):  
     
@@ -170,7 +171,7 @@ def submit_to_code_server(question_id):
     url = "http://localhost:55555"
     uid = "fellowship" + str(question_id)
     status = False
-    submit = requests.post(url, data=dict(uid=uid, json_data=consolidate_answer, user_dir="/home/mahesh"))
+    submit = requests.post(url, data=dict(uid=uid, json_data=consolidate_answer, user_dir=""))
     while not status:
         result_state = get_result(url, uid)
         stat = result_state.get("status") 
@@ -183,4 +184,3 @@ def submit_to_code_server(question_id):
 def get_result(url, uid):
     response = json.loads(requests.get(urljoin(url, uid)).text)
     return response
-    
