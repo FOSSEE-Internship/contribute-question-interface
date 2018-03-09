@@ -24,7 +24,7 @@ $('#id_description').bind('keypress', function (event){
 });
 
  </script>
-<form action="{{ URL_ROOT }}/addquestion/{{ question.id }}/" method="post" name=frm enctype="multipart/form-data">
+<form action="{{ URL_ROOT }}/addquestion/{{ question.id }}/" method="post" name="frm" enctype="multipart/form-data">
   {% csrf_token %}
   <center><table class="table">
   <tr><td>Summary: <td>{{ qform.summary }}{{ qform.summary.errors }}
@@ -55,8 +55,8 @@ $('#id_description').bind('keypress', function (event){
   {% else %}
   <tr><td>Solution: <td>{{ qform.solution }}{{qform.solution.errors}}
   {% endif %}
-  <tr><td>Citation: <td>{{ qform.citation }}{{qform.citation.errors}}
-  <tr><td>Originality: <td>{{ qform.originality }} {{qform.originality.errors}}
+    <tr><td>Citation: <td>{{ qform.citation }}{{qform.citation.errors}}
+ <tr><td>Originality: <td>{{ qform.originality }} {{qform.originality.errors}}
   </table></center>
   {% for formset in formsets %}
   <div class="form-group">
