@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 import json
+import os
 
 question_status_choice = (
         (1, "approved"),
@@ -61,7 +62,8 @@ class Question(models.Model):
     solution = models.TextField()
 
     # If the question is cited
-    citation = models.TextField(null=False)
+    citation = models.TextField(null=True, blank=True, help_text="Please add appropriate citation\
+                                if the question is adapted from elsewhere.")
 
     # originality of the question
     originality = models.CharField(max_length=24, choices=originality, default="original")
@@ -93,6 +95,7 @@ class Question(models.Model):
         metadata['partial_grading'] = False
         question_data['metadata'] = metadata
         return json.dumps(question_data)
+
 
 class TestCase(models.Model):
     question = models.ForeignKey(Question, blank=True, null=True)

@@ -14,6 +14,7 @@ from random import choice
 from urllib.parse import urljoin
 import requests
 import json
+import os
 
 def show_home(request):  
     
@@ -86,8 +87,7 @@ def add_question(request, question_id=None):
     ci = RequestContext(request)
     test_case_type = "stdiobasedtestcase"
     solution_error, tc_error = [], []
-    if Question.objects.filter(user=user).count()>5:
-        print("count")
+    if Question.objects.filter(user=user).count()>=5:
         return HttpResponseRedirect(reverse('show_all_questions'))
 
     if question_id is None:
@@ -110,7 +110,6 @@ def add_question(request, question_id=None):
             question = qform.save(commit=False)
             question.user = user
             question.save()
-            # many-to-many field save function used to save the tags
             for formset in formsets:
                 if formset.is_valid():
                     formset.save()
@@ -172,7 +171,7 @@ def submit_to_code_server(question_id):
     url = "http://localhost:55555"
     uid = "fellowship" + str(question_id)
     status = False
-    submit = requests.post(url, data=dict(uid=uid, json_data=consolidate_answer, user_dir="/home/mahesh"))
+    submit = requests.post(url, data=dict(uid=uid, json_data=consolidate_answer, user_dir=""))
     while not status:
         result_state = get_result(url, uid)
         stat = result_state.get("status") 
@@ -185,4 +184,3 @@ def submit_to_code_server(question_id):
 def get_result(url, uid):
     response = json.loads(requests.get(urljoin(url, uid)).text)
     return response
-    
