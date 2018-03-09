@@ -34,9 +34,9 @@
   <h1>Welcome {{name}}</h1><br/>
   <p>
   {% ifequal type 'user' %}
-  You can contribute questions here by clicking on Start Contribution.
+  You can contribute questions here by clicking on Start Contribution.<br>
   For instructions on how to create questions click <a href=/>here</a>.
-  <br/> <br /><a href="{% url 'show_all_questions' %}">Start Contribution</a>
+  <br/> <br /><a class="btn btn-primary" href="{% url 'show_all_questions' %}">Start Contribution</a>
   {% endifequal %}
   {% ifequal type 'moderator' %}
   You can comment and approve questions here

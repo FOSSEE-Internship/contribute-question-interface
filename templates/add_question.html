@@ -22,6 +22,7 @@ $('#id_description').bind('keypress', function (event){
     document.getElementById('my').innerHTML = document.getElementById('id_description').value ;
   });
 });
+
  </script>
 <form action="{{ URL_ROOT }}/addquestion/{{ question.id }}/" method="post" name=frm enctype="multipart/form-data">
   {% csrf_token %}
