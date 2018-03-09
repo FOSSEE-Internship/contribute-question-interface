@@ -22,8 +22,7 @@ Creating Questions
 
 	1. After login click on **Start Contribution** button to start creating questions.
 	2. On the contribution interface you can view all your questions.
-	3. To delete a question Select the question and click on **Delete Question** button.
-		.. note::  Once deleted, a question cannot be  retrieved back. Please take caution before deletion.
+	3. To delete a question Select the question and click on **Delete Question** button. Once deleted, a question cannot be  retrieved back. Please take caution before deletion.
 	4. Click on **Add Question** button to create a new question.
 	5. Below image shows an example of creating a question
 			.. figure:: images/create_questions.jpg
