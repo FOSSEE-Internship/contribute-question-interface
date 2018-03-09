@@ -1,5 +1,5 @@
 from django import forms
-from models import *
+from interface.models import *
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 class RegistrationForm(forms.Form):
@@ -21,56 +21,10 @@ class RegistrationForm(forms.Form):
                 raise forms.ValidationError(_("The two password fields did not match."))
         return self.cleaned_data 
 
-class MultipleChoiceQuestionForm(forms.ModelForm):
-		class Meta:
-			model = MultipleChoiceQuestion
-			fields = [
-					"title",
-					"text",
-					"language",
-					"marks",
-					"status",
-					"no_of_inputs",
-				     ]
+class QuestionForm(forms.ModelForm):
+    """Creates a form to add or edit a Question.
+    It has the related fields and functions required."""
 
-class CodeQuestionForm(forms.ModelForm):
-	    class Meta:
-	    	model = CodeQuestion
-	    	fields = [
-	    	       "title",
-	    	       "text",
-	    	       "language",
-	    	       "marks",
-	    	       "status",
-	    	       "function_name",
-	    	 		 ]
-
-class InputForm(forms.ModelForm):
-		class Meta:
-			model = Input
-			fields = [
-					"_type",
-					"value",
-					]
-
-
-class OutputForm(forms.ModelForm):
-		class Meta:
-			model = Output
-			fields = [
-					"_type",
-					"value",
-					]
-
-
-
-
-'''class TestCaseForm(forms.ModelForm):
-	    class Meta:
-	    	model = TestCase
-	    	fields = [
-	    	       "no_of_inputs",
-	    	       "no_of_outputs",
-	    	       
-	    	         ]'''
-	    			    	
+    class Meta:
+        model = Question
+        exclude = ['user', "type", "language", "status"]
