@@ -16,7 +16,9 @@ def zip_longest_out(a, b):
 @register.simple_tag
 def get_testcase_error(error_list, expected_output):
 	tc_error = None
+	success= False
 	for error in error_list:
-		if expected_output == error.get("expected_output")[0]:
+		if expected_output.split("\r\n") == error.get("expected_output"):
 			tc_error = error
-	return tc_error
+			success = True
+	return {"tc_error":tc_error, "success":success}

@@ -64,50 +64,56 @@ $('#id_description').bind('keypress', function (event){
       {% for form in formset %}
         <div class="link-formset well">
           {{ form.as_p }}
-          {% get_testcase_error tc_error form.expected_output.value as stdio_error %}
-        {% if stdio_error %}
-        {% if stdio_error.given_input %}
-         <table class="table table-bordered">
-          <col width="30%">
-            <tr class = "active">
-            <td> For given Input value(s):</td>
-            <td>{{stdio_error.given_input}}</td>
-            </tr>
-         </table>
-       {% endif %}
+          {% if form.expected_output.value %}
+            {% get_testcase_error tc_error form.expected_output.value as stdio_dict %}
+            {% if stdio_dict.success  %}
+                {% if stdio_dict.tc_error.given_input %}
+                 <table class="table table-bordered">
+                  <col width="30%">
+                    <tr class = "active">
+                    <td> For given Input value(s):</td>
+                    <td>{{stdio_dict.tc_error.given_input}}</td>
+                    </tr>
+                 </table>
+               {% endif %}
 
-        <table class="table table-bordered" width="100%" id="stdio">
-          <col width="10%">
-          <col width="40%">
-          <col width="40%">
-          <col width="10%">
-          <tr class="info">
-          <th><center>Line No.</center></th>
-          <th><center>Expected Output</center></th>
-          <th><center>User output</center></th>
-          <th><center>Status</center></th>
-          </tr>
-          {% for expected,user in stdio_error.expected_output.0|zip:stdio_error.user_output.0 %}
-          <td> {{forloop.counter}} </td>
-          <td>{{expected|default:""}} </td>
-          <td>{{user|default:""}}</td>
-          {% if forloop.counter0 in stdio_error.error_line_numbers.0 or not expected or not user %}
-          <td><span class ="glyphicon glyphicon-remove text-warning"/></td>
+                <table class="table table-bordered" width="100%" id="stdio">
+                  <col width="10%">
+                  <col width="40%">
+                  <col width="40%">
+                  <col width="10%">
+                  <tr class="info">
+                  <th><center>Line No.</center></th>
+                  <th><center>Expected Output</center></th>
+                  <th><center>User output</center></th>
+                  <th><center>Status</center></th>
+                  </tr>
+                  {% for expected,user in stdio_dict.tc_error.expected_output|zip:stdio_dict.tc_error.user_output %}
+                  <td> {{forloop.counter}} </td>
+                  <td>{{expected|default:""}} </td>
+                  <td>{{user|default:""}}</td>
+                  {% if forloop.counter0 in stdio_dict.tc_error.error_line_numbers or not expected or not user %}
+                  <td><span class ="glyphicon glyphicon-remove text-warning"/></td>
+                  {% else %}
+                  <td><span class ="glyphicon glyphicon-ok text-success"/></td>
+                  {% endif %}
+                  </tr>
+                  {% endfor %}
+                  </table>
+                  <table width="100%" class='table table-bordered'>
+                  <col width="10">
+                  <tr class = "danger">
+                  <td><b>Error:</b></td>
+                   <td>{{stdio_dict.tc_error.error_msg}}</td>
+                   </tr>
+                </table>
           {% else %}
-          <td><span class ="glyphicon glyphicon-ok text-success"/></td>
-          {% endif %}
-          </tr>
-          {% endfor %}
-          </table>
-          <table width="100%" class='table table-bordered'>
-          <col width="10">
-          <tr class = "danger">
-          <td><b>Error:</b></td>
-           <td>{{stdio_error.error_msg}}</td>
-           </tr>
-          </table>
-          {% endif %}
+          <div class="alert alert-success">
+            Output of the Solution matches with the expected output
+          </div>
+          {% endif %} {# closes stdio_error #}
         </div>
+        {% endif %} {# closes form.expected_output.value #}
       {% endfor %}
 
   </div>
