@@ -1,0 +1,15 @@
+pytest
+python-decouple
+six
+requests
+tornado
+psutil
+invoke==0.21.0
+django==1.9.5
+django-taggit==0.18.1
+pytz==2016.4
+selenium==2.53.6
+coverage
+ruamel.yaml==0.15.23
+markdown==2.6.9
+mysqlclient==1.3.9

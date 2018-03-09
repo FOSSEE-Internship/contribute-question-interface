@@ -7,20 +7,14 @@
 {% endifequal %}
 {% ifequal type 'user' %}
 <li class="active"><a href="{% url 'home' %}">Home</a></li>
-<li><a href="{% url 'next_login' %}">Contribution</a></li>
+<li><a href="{% url 'show_all_questions'%}">Contribution</a></li>
 <li><a href="{% url 'logout_page' %}">Logout</a></li>
 {% endifequal %}
 {% ifequal type 'moderator' %}
 <li class="active"><a href="{% url 'home' %}">Home</a></li>
 <li class="dropdown">
 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Show Questions <span class="caret"></span></a>
-<ul class="dropdown-menu">
-<li><a href="{% url 'mod_show_mcq' %}" >Unapproved MCQ</a></li>
-<li><a href="{% url 'mod_show_cq' %}" >Unapproved CQ</a></li>
-<li><a href="{% url 'mod_show_approved_mcq' %}">Approved MCQ</a></li>
-<li><a href="{% url 'mod_show_approved_cq' %}">Approved CQ</a></li>
-</ul>
-</li>
+
 <li><a href="{% url 'logout_page' %}">Logout</a></li>
 {% endifequal %}
 {% endblock %}
@@ -40,18 +34,12 @@
   <h1>Welcome {{name}}</h1><br/>
   <p>
   {% ifequal type 'user' %}
-  You can contribute questions here by clicking on Start Contribution.
-  Before that You should rate one multiple choice question and one code question.<br/> <br /><a href="{% url 'rate_mcq' %}" />Start Contribution</a>
+  You can contribute questions here by clicking on Start Contribution.<br>
+  For instructions on how to create questions click <a href=/>here</a>.
+  <br/> <br /><a class="btn btn-primary" href="{% url 'show_all_questions' %}">Start Contribution</a>
   {% endifequal %}
   {% ifequal type 'moderator' %}
   You can comment and approve questions here
-  <ul>
-<li>All Questions: <a href="{% url 'mod_show_all' %}" >Click here</a></li>
-<li>Unapproved MCQ: <a href="{% url 'mod_show_mcq' %}" >Click here</a></li>
-<li>Unapproved CQ: <a href="{% url 'mod_show_cq' %}" >Click here</a></li>
-<li>Approved MCQ: <a href="{% url 'mod_show_approved_mcq' %}">Click here</a></li>
-<li>Approved CQ: <a href="{% url 'mod_show_approved_cq' %}">Click here</a></li>
-</ul>
   <a href=""
   {% endifequal %}
   </p>
