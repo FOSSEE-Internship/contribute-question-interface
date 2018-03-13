@@ -91,25 +91,24 @@ def add_question(request, question_id=None):
         return HttpResponseRedirect(reverse('show_all_questions'))
 
     if question_id is None:
-        question = Question(user=user)
-        question.save()
+        question = None
     else:
         question = Question.objects.get(id=question_id)
 
     if request.method == 'POST':
         qform = QuestionForm(request.POST, instance=question)
         formsets = []
-        for testcase in TestCase.__subclasses__():
-            formset = inlineformset_factory(Question, testcase, extra=0,
-                                            fields='__all__')
-            formsets.append(formset(
-                request.POST, instance=question
-                )
-            )
         if qform.is_valid():
             question = qform.save(commit=False)
             question.user = user
             question.save()
+            for testcase in TestCase.__subclasses__():
+                formset = inlineformset_factory(Question, testcase, extra=0,
+                                                fields='__all__')
+                formsets.append(formset(
+                    request.POST, instance=question
+                    )
+                )
             for formset in formsets:
                 if formset.is_valid():
                     formset.save()

@@ -8,6 +8,7 @@
 {% ifequal type 'user' %}
 <li class="active"><a href="{% url 'home' %}">Home</a></li>
 <li><a href="{% url 'show_all_questions'%}">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
 <li><a href="{% url 'logout_page' %}">Logout</a></li>
 {% endifequal %}
 {% ifequal type 'moderator' %}

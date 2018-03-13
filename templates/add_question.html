@@ -1,13 +1,13 @@
 {% extends "navigation.html" %}
 {% load custom_filter %}
 {% block script %}
- <script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"/>
- 
- {% endblock %}
+<script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"/>
+{% endblock %}
 
 {% block navbar %}
-<li class="active"><a href="{% url 'home' %}">Home</a></li>
-<li><a href="{% url 'show_all_questions' %}">Contribution</a></li>
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="{% url 'show_all_questions' %}">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
 <li><a href="{% url 'logout_page' %}">Logout</a></li>
  {% endblock %}
 
@@ -21,10 +21,15 @@
 $('#id_description').bind('keypress', function (event){
     document.getElementById('my').innerHTML = document.getElementById('id_description').value ;
   });
+$("input[name*='type']").attr("readonly", true);
 });
 
  </script>
+{% if question %}
 <form action="{{ URL_ROOT }}/addquestion/{{ question.id }}/" method="post" name="frm" enctype="multipart/form-data">
+{% else %}
+<form action="{{ URL_ROOT }}/addquestion/" method="post" name="frm" enctype="multipart/form-data">
+{% endif %}
   {% csrf_token %}
   <center><table class="table">
   <tr><td>Summary: <td>{{ qform.summary }}{{ qform.summary.errors }}
@@ -56,7 +61,7 @@ $('#id_description').bind('keypress', function (event){
   <tr><td>Solution: <td>{{ qform.solution }}{{qform.solution.errors}}
   {% endif %}
     <tr><td>Citation: <td>{{ qform.citation }}{{qform.citation.errors}}
- <tr><td>Originality: <td>{{ qform.originality }} {{qform.originality.errors}}
+ <tr><td>Source: <td>{{ qform.originality }} {{qform.originality.errors}}
   </table></center>
   {% for formset in formsets %}
   <div class="form-group">
