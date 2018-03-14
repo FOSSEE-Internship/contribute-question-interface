@@ -75,6 +75,8 @@ Creating Questions
 
 		To delete a test case, Select **Delete** checkbox and click on **Check and Save** to delete the testcase and save the question.
 
+		To **add a new test case**, select ``stdio`` from the drop down box, found just above the ``Check and Save`` button.
+
 	6. To delete a question, Select the question and click on **Delete Question** button. Once deleted, a question cannot be retrieved back. Please take caution before deletion.
 	7. If all the test cases for the questions pass, then the question is automatically approved. To see how many questions are approved, you can look at the **status** column in contribution page, where you see all your questions.
 
