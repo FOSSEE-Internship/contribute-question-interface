@@ -1,7 +1,7 @@
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
                               Rating, Review)
 from django.shortcuts import render,get_object_or_404
-from django.http import HttpResponse,HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse,HttpResponseRedirect, JsonResponse, Http404
 from interface.forms import *
 from django.forms.models import inlineformset_factory
 from django.core.urlresolvers import reverse
@@ -104,6 +104,9 @@ def add_question(request, question_id=None):
         question = None
     else:
         question = Question.objects.get(id=question_id)
+        if not is_moderator(user):
+            if question.user != user:
+                raise Http404("You cannot access this page")
 
     if request.method == 'POST':
         qform = QuestionForm(request.POST, instance=question)
