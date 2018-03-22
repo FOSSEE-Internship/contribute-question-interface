@@ -35,6 +35,9 @@
     <th> Language </th>
     <th> Type </th>  
     <th> Marks </th>
+    {%if admin %}
+        <th>User</th>
+    {% endif %}    
     <th> Status </th>
     </tr>
     </thead>
@@ -49,6 +52,9 @@
 <td>{{question.language|capfirst}}</td>
 <td>{{question.type|capfirst}}</td>
 <td>{{question.points}}</td>
+{% if admin %}
+<td>{{question.user}}</td>
+{% endif %}
 {% if question.status %}
     <td><span class ="glyphicon glyphicon-ok text-success"/></td>
 {% else %}
@@ -62,10 +68,12 @@
 </div>
 <br>
 <center>
+{% if not admin %}
 {% if not remaining <= 0 %}
 <button class="btn btn-primary" type="button" onclick='location.replace("{{URL_ROOT}}/addquestion/");'>Add Question <span class="glyphicon glyphicon-plus"></span></button>&nbsp;&nbsp;
 {% endif %}
 <button class="btn btn-danger" type="submit" onClick="return confirm_delete(frm);" name='delete' value='delete'>Delete Selected <span class="glyphicon glyphicon-minus"></span></button>
+{% endif %}
 </center>
 </form>
 </div>

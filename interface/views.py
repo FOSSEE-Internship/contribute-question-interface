@@ -16,6 +16,12 @@ import requests
 import json
 import os
 
+
+def is_moderator(user):
+    """Check if the user is having moderator rights"""
+    if user.groups.filter(name='moderator').exists():
+        return True
+
 def show_home(request):  
     
     if request.user.is_authenticated():  
@@ -50,11 +56,7 @@ def logout_page(request):
 def next_login(request):
 
     if request.user.is_authenticated():
-        groups = request.user.groups.values_list('name', flat=True)
-        if ('admin' in groups or 'moderator' in groups): 
-            return render(request, 'dashboard.html', {'type':'moderator', "name":request.user})
-        else:
-            return render(request, 'dashboard.html', {'type':'user', "name":request.user})
+        return render(request, 'dashboard.html', {'type':'user', "name":request.user})
     else:
         return render(request, 'home.html', {'type':'guest'})
 
@@ -74,11 +76,19 @@ def show_all_questions(request):
                                                     )
                 for question in questions:
                     question.delete()
-    questions = Question.objects.filter(user_id=user.id)
-    count = questions.count()
-    remaining = 5-count 
+    if is_moderator(user):
+        questions = Question.objects.all()
+        context['admin'] = True
+        context['remaining'] = "None"
+
+    else:
+        questions = Question.objects.filter(user_id=user.id)
+        count = questions.count()
+        remaining = 5-count
+        context['remaining'] = remaining
+        context['admin'] = False
+
     context['questions'] = questions
-    context['remaining'] = remaining
     return render(request, "showquestions.html", context)
 
 @login_required
