@@ -4,16 +4,10 @@ from django.db import models
 import json
 import os
 
-question_status_choice = (
-        (1, "approved"),
-        (0, "unseen"),
-        (-1, "discarded"),
-        )
-
-level = (
-        (1, "easy"),
-        (2, "medium"),
-        (3, "difficult"),
+question_status_choices = (
+        (1, "Question doesn't make sense."),
+        (2, "Question makes sense, but is too difficult to solve."),
+        (3, "Question is correct, but the test cases are wrong."),
         )
 
 rating_choice = (
@@ -22,12 +16,6 @@ rating_choice = (
         (3, "Good"),
         (4, "Verygood"),
         (5, "Excellent"),
-        )
-types = (
-        (1, "integer"),
-        (2, "float"),
-        (3, "string"),
-        (4, "boolean"),
         )
 
 originality = (
@@ -62,8 +50,10 @@ class Question(models.Model):
     solution = models.TextField()
 
     # If the question is cited
-    citation = models.TextField(null=True, blank=True, help_text="Please add appropriate citation\
-                                if the question is adapted from elsewhere.")
+    citation = models.TextField(null=True, blank=True,
+                                help_text="Please add appropriate citation\
+                                if the question is adapted from elsewhere."
+                                )
 
     # originality of the question
     originality = models.CharField(max_length=24, choices=originality, default="original")
@@ -120,25 +110,35 @@ class StdIOBasedTestCase(TestCase):
     
 
 class Rating(models.Model):
-    user = models.ForeignKey(User)
     question = models.ForeignKey(Question)
-    rate = models.IntegerField(default=3, choices=rating_choice)
-    
+    avg_moderator_rating = models.FloatField(default=0.0)
+    avg_peer_rating = models.FloatField(default=0.0)
+
     def __str__(self):  
-        return str(self.user)
+        return "Rating for {0}".format(question.summary)
         
-    class Meta:
-        unique_together = ('user', 'question',) 
+
+class QuestionReviewDetails(models.Model):
+    question = models.ForeignKey(Question)
+    rating = models.IntegerField(default=3, choices=rating_choice)
+    comments = models.TextField(null=True, blank=True)
+    check_citation = models.BooleanField(default=False)
+    question_status = models.IntegerField(blank=True, null=True,
+                                          choices=question_status_choices
+                                          )
+    skipped = models.BooleanField(default=False)
+
+    def __str__(self):  
+        return "Review for {0}".format(question.summary)
+
 
 class Review(models.Model):
-    reviewer = models.ForeignKey(User)
-    question = models.ForeignKey(Question)
-    comments = models.CharField(max_length=24, choices=level)
-    
-    def __str__(self):  
-        return str(self.reviewer)
-    
-    def update_review(self,new_comments):
-        self.comments=new_comments
-    #class Meta:
-    #   unique_together = ('reviewer', 'question',) 
+    user = models.ForeignKey(User)
+    admin_review = models.BooleanField(default=False)
+    question_details = models.ManyToManyField(QuestionReviewDetails,
+                                              related_name="question_details"
+                                              )
+
+class QuestionBank(models.Model):
+    user = models.ForeignKey(User)
+    question_bank = models.ManyToManyField(Question)
