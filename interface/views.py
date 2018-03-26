@@ -97,9 +97,9 @@ def add_question(request, question_id=None):
     ci = RequestContext(request)
     test_case_type = "stdiobasedtestcase"
     solution_error, tc_error = [], []
-    if Question.objects.filter(user=user).count()>5:
-        return HttpResponseRedirect(reverse('show_all_questions'))
 
+    if Question.objects.filter(user=user).count()>=5 and not question_id:
+        return HttpResponseRedirect(reverse('show_all_questions'))
     if question_id is None:
         question = None
     else:
@@ -109,6 +109,7 @@ def add_question(request, question_id=None):
                 raise Http404("You cannot access this page")
 
     if request.method == 'POST':
+
         qform = QuestionForm(request.POST, instance=question)
         formsets = []
         if qform.is_valid():
@@ -171,6 +172,7 @@ def add_question(request, question_id=None):
     context = {'qform': qform, 'question': question,
                'formsets': formsets, "solution_error":solution_error,
                "tc_error": tc_error}
+
     return render_to_response(
         "add_question.html", context, context_instance=ci
     )
