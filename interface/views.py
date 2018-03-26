@@ -97,7 +97,7 @@ def add_question(request, question_id=None):
     ci = RequestContext(request)
     test_case_type = "stdiobasedtestcase"
     solution_error, tc_error = [], []
-    if Question.objects.filter(user=user).count()>=5:
+    if Question.objects.filter(user=user).count()>5:
         return HttpResponseRedirect(reverse('show_all_questions'))
 
     if question_id is None:
