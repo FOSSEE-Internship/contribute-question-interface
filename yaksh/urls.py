@@ -14,6 +14,8 @@ urlpatterns = [
     url(r'^showquestions/$',"interface.views.show_all_questions",name="show_all_questions"),
     url(r'^addquestion/$',"interface.views.add_question",name="add_question"),
     url(r'^addquestion/(?P<question_id>\d+)/$',"interface.views.add_question",name="add_question"),
+    url(r'^show_review_questions/$', "interface.views.show_review_questions", 
+        name="show_review_questions")
 #     url(r'^questions/ratemcq/$',"interface.views.rate_mcq",name="rate_mcq"),
 #     url(r'^questions/postcomment/$',"interface.views.rate_post",name="rate_post_comment"),
 #     url(r'^questions/ratecq/$',"interface.views.rate_cq",name="rate_cq"),

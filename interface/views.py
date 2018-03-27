@@ -1,5 +1,5 @@
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
-                              Rating, Review)
+                              Rating, Review, QuestionBank)
 from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse,HttpResponseRedirect, JsonResponse, Http404
 from interface.forms import *
@@ -15,11 +15,16 @@ from urllib.parse import urljoin
 import requests
 import json
 import os
+import random
 
 
 def is_moderator(user):
     """Check if the user is having moderator rights"""
     if user.groups.filter(name='moderator').exists():
+        return True
+
+def is_reviewer(user):
+    if user.groups.filter(name='reviewer').exists():
         return True
 
 def show_home(request):  
@@ -56,6 +61,8 @@ def logout_page(request):
 def next_login(request):
 
     if request.user.is_authenticated():
+        if is_reviewer(request.user):
+            return show_review_questions(request)
         return render(request, 'dashboard.html', {'type':'user', "name":request.user})
     else:
         return render(request, 'home.html', {'type':'guest'})
@@ -67,6 +74,8 @@ def show_all_questions(request):
     user = request.user
     ci = RequestContext(request)
     context = {}
+    if is_reviewer(user):
+        return show_review_questions(request)
     if request.method == 'POST':
         if request.POST.get('delete') == 'delete':
             data = request.POST.getlist('question')
@@ -95,6 +104,8 @@ def show_all_questions(request):
 def add_question(request, question_id=None):
     user = request.user
     ci = RequestContext(request)
+    if is_reviewer(user):
+        return show_review_questions(request)
     test_case_type = "stdiobasedtestcase"
     solution_error, tc_error = [], []
 
@@ -198,3 +209,32 @@ def submit_to_code_server(question_id):
 def get_result(url, uid):
     response = json.loads(requests.get(urljoin(url, uid)).text)
     return response
+
+
+@login_required
+def show_review_questions(request):
+    user = request.user
+    context = {}
+    if is_moderator(user):
+        context['questions'] = Question.objects.all()
+        status = "moderator"
+    if is_reviewer(user):
+        ques_bank = QuestionBank.objects.filter(user=user)
+        if ques_bank.exists():
+            context['questions'] = ques_bank.first().question_bank.all()
+        else:
+            questions = get_reviewer_questions(user)
+            que_bank = QuestionBank.objects.create(user=user)
+            que_bank.question_bank.add(*questions)
+            context['questions'] = questions
+        status = "reviewer"
+    context['status'] = status
+    return render_to_response(
+        "show_review_questions.html", context
+        )
+
+
+def get_reviewer_questions(user):
+    questions = list(Question.objects.all().exclude(user=user))
+    random.shuffle(questions)
+    return questions[:10]
