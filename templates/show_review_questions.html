@@ -43,7 +43,7 @@
 
 {% for question in questions %}
 <tr>
-<td><a href="{{URL_ROOT}}/addquestion/{{ question.id }}">{{question.summary|capfirst}}</a></td>
+<td><a href="{{URL_ROOT}}/checkquestion/{{ question.id }}">{{question.summary|capfirst}}</a></td>
 <td>{{question.language|capfirst}}</td>
 <td>{{question.type|capfirst}}</td>
 <td>{{question.points}}</td>

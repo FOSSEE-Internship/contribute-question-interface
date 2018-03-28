@@ -4,6 +4,7 @@ from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse,HttpResponseRedirect, JsonResponse, Http404
 from interface.forms import *
 from django.forms.models import inlineformset_factory
+from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout,login
@@ -74,7 +75,7 @@ def show_all_questions(request):
     user = request.user
     ci = RequestContext(request)
     context = {}
-    if is_reviewer(user):
+    if is_reviewer(user) or is_moderator(user):
         return show_review_questions(request)
     if request.method == 'POST':
         if request.POST.get('delete') == 'delete':
@@ -102,6 +103,7 @@ def show_all_questions(request):
 
 @login_required
 def add_question(request, question_id=None):
+    """Create/edit Questions on the interface"""
     user = request.user
     ci = RequestContext(request)
     if is_reviewer(user):
@@ -216,17 +218,13 @@ def show_review_questions(request):
     user = request.user
     context = {}
     if is_moderator(user):
-        context['questions'] = Question.objects.all()
+        context['questions'] = Question.objects.filter(status=True)
         status = "moderator"
     if is_reviewer(user):
-        ques_bank = QuestionBank.objects.filter(user=user)
-        if ques_bank.exists():
-            context['questions'] = ques_bank.first().question_bank.all()
-        else:
-            questions = get_reviewer_questions(user)
-            que_bank = QuestionBank.objects.create(user=user)
-            que_bank.question_bank.add(*questions)
-            context['questions'] = questions
+        ques_bank,created = QuestionBank.objects.get_or_create(user=user)
+        questions = get_reviewer_questions(user, ques_bank)
+        ques_bank.question_bank.add(*questions)
+        context['questions'] = ques_bank.question_bank.all()
         status = "reviewer"
     context['status'] = status
     return render_to_response(
@@ -234,7 +232,30 @@ def show_review_questions(request):
         )
 
 
-def get_reviewer_questions(user):
-    questions = list(Question.objects.all().exclude(user=user))
+def get_reviewer_questions(user, question_bank):
+    existing_questions = question_bank.question_bank\
+                                      .values_list("id", flat=True)
+    questions = list(Question.objects.all().exclude(Q(user=user)
+                                                    | Q(status=False)
+                                                    | Q(id__in=existing_questions)
+                                                    )
+                     )
     random.shuffle(questions)
-    return questions[:10]
+    return questions[:(9-question_bank.question_bank.count())]
+
+
+@login_required
+def check_question(request, question_id):
+    """Review question on the interface."""
+
+    user = request.user
+    ci = RequestContext(request)
+    context = {}
+    if not is_reviewer(user) and not is_moderator(user):
+        raise Http404("You are not allowed to view this page.")
+    try:
+        question = Question.objects.get(id=question_id)
+    except Question.DOesNotExist:
+        raise Http404("The Question you are trying to review doesn't exist.")
+    context['question'] = question
+    return render(request, "checkquestion.html", context)
