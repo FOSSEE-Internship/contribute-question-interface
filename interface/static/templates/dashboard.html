@@ -1,0 +1,27 @@
+{% extends "navigation.html" %}
+{% block navbar %}
+<li class="active"><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'show_all_questions'%}">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+{% endblock %}
+
+{% block content %}
+<html lang="en">
+<head></head>
+
+<div class="container">
+
+  <br><br>
+  <h1>Welcome {{name}}</h1><br/>
+  <p>
+  You can contribute questions here by clicking on Start Contribution.<br>
+  For instructions on how to create questions click <a href="https://yaksh-contribution.readthedocs.io" target="_blank">here</a>.
+  <br/> <br /><a class="btn btn-primary" href="{% url 'show_all_questions' %}">Start Contribution</a>
+  </p>
+  </center>
+</div>
+
+</body>
+</html>
+{% endblock %}

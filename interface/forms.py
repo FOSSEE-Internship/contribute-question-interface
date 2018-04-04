@@ -1,5 +1,6 @@
 from django import forms
-from interface.models import *
+from interface.models import (Question, TestCase, StdIOBasedTestCase,
+                              Rating, Review, QuestionBank)
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 class RegistrationForm(forms.Form):

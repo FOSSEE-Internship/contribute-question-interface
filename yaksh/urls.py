@@ -1,26 +1,27 @@
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from interface.views import *
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$',"interface.views.show_home",name="home"),
+    url(r'^$',show_home,name="home"),
 
-    url(r'^login/$', 'django.contrib.auth.views.login', name="login"), 
-    url(r'^logout/$', "interface.views.logout_page",name="logout_page"), 
-    url(r'^register/$', "interface.views.register", name="register_page"),
-    url(r'^register/success/$', "interface.views.register_success",
-        name="register_success"),
-    url(r'^dashboard/$',"interface.views.next_login",name="next_login"),
+    url(r'^login/$', auth_views.login,
+        {'template_name': 'login.html'}, name="login"),
+    url(r'^logout/$', logout_page,name="logout_page"),
+    url(r'^register/$', register, name="register_page"),
+    url(r'^dashboard/$',next_login,name="next_login"),
 
-    url(r'^showquestions/$',"interface.views.show_all_questions",
+    url(r'^showquestions/$',show_all_questions,
         name="show_all_questions"),
-    url(r'^addquestion/$',"interface.views.add_question",name="add_question"),
-    url(r'^addquestion/(?P<question_id>\d+)/$',"interface.views.add_question",
+    url(r'^addquestion/$',add_question,name="add_question"),
+    url(r'^addquestion/(?P<question_id>\d+)/$',add_question,
         name="add_question"),
-    url(r'^show_review_questions/$', "interface.views.show_review_questions", 
+    url(r'^show_review_questions/$', show_review_questions,
         name="show_review_questions"),
     url(r'^checkquestion/(?P<question_id>\d+)/$',
-        "interface.views.check_question",name="check_question"),
+        check_question,name="check_question"),
 
 #     url(r'^questions/ratemcq/$',"interface.views.rate_mcq",name="rate_mcq"),
 #     url(r'^questions/postcomment/$',"interface.views.rate_post",name="rate_post_comment"),
