@@ -125,6 +125,7 @@ class QuestionReviewDetails(models.Model):
     question_status = models.IntegerField(blank=True, null=True,
                                           choices=question_status_choices
                                           )
+    last_answer = models.TextField(null=True, blank=True)
     skipped = models.BooleanField(default=False)
 
     def __str__(self):  

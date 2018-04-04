@@ -180,11 +180,16 @@ def add_question(request, question_id=None):
         "add_question.html", context, context_instance=ci
     )
 
-def submit_to_code_server(question_id):
+def submit_to_code_server(question_id, solution=None):
     """Check if question solution and testcases are correct."""
 
     question = Question.objects.get(id=question_id)
-    consolidate_answer = question.consolidate_answer_data(question.solution)
+    if solution:
+        consolidate_answer = question.consolidate_answer_data(solution)
+    else:
+        consolidate_answer = question.consolidate_answer_data(
+                                      question.solution
+                                      )
     url = "http://{0}:{1}".format(CODESERVER_HOSTNAME, CODESERVER_PORT)
     uid = "fellowship" + str(question_id)
     status = False
@@ -243,10 +248,16 @@ def check_question(request, question_id):
     """Review question on the interface."""
 
     user = request.user
-    ci = RequestContext(request)
     context = {}
     if not is_reviewer(user) and not is_moderator(user):
         raise Http404("You are not allowed to view this page.")
+    if request.method == 'POST':
+        if request.POST.get('answer'):
+            result = submit_to_code_server(question_id,
+                                           request.POST.get("answer")
+                                           )
+            if result.get("success") == False:
+                context["result"] = result.get("error")
     try:
         question = Question.objects.get(id=question_id)
     except Question.DOesNotExist:
