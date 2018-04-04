@@ -2,23 +2,20 @@ from interface.models import (Question, TestCase, StdIOBasedTestCase,
                               Rating, Review, QuestionBank)
 from yaksh.settings import CODESERVER_HOSTNAME,CODESERVER_PORT
 from interface.forms import (RegistrationForm, QuestionForm)
-from django.shortcuts import render,get_object_or_404
-from django.http import HttpResponse,HttpResponseRedirect, Http404
+from django.shortcuts import render
+from django.http import HttpResponseRedirect, Http404
 from django.forms.models import inlineformset_factory
 from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout,login
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from random import choice
 from urllib.parse import urljoin
 import requests
 import json
-import os
 import random
 
 
@@ -42,7 +39,7 @@ def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = User.objects.create_user(
+            User.objects.create_user(
             username=form.cleaned_data['username'],
             password=form.cleaned_data['password1'],
             email=form.cleaned_data['email']
@@ -75,7 +72,6 @@ def show_all_questions(request):
     """Show a list of all the questions currently in the database."""
 
     user = request.user
-    ci = RequestContext(request)
     context = {}
     if is_reviewer(user) or is_moderator(user):
         return show_review_questions(request)
@@ -192,11 +188,10 @@ def submit_to_code_server(question_id):
     url = "http://{0}:{1}".format(CODESERVER_HOSTNAME, CODESERVER_PORT)
     uid = "fellowship" + str(question_id)
     status = False
-    submit = requests.post(url, data=dict(uid=uid, 
-                                          json_data=consolidate_answer,
-                                          user_dir=""
-                                          )
-                            )
+    requests.post(url, data=dict(uid=uid, json_data=consolidate_answer,
+                                 user_dir=""
+                                 )
+                  )
     while not status:
         result_state = get_result(url, uid)
         stat = result_state.get("status") 
