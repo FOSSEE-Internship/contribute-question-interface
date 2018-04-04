@@ -1,0 +1,23 @@
+{% extends "navigation.html" %}
+{% block navbar %}
+<li class="active"><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'login' %}">Login</a></li>
+<li><a href="{% url 'register_page' %}">Signup</a></li>
+{% endblock %}
+
+{% block content %}
+<html lang="en">
+<head>
+
+</head>
+
+<div class="container">
+<center>
+  <br><br>
+  <h1>Welcome to FOSSEE Fellowship Question Contribution Interface</h1><br/>
+  </center>
+</div>
+
+</body>
+</html>
+{% endblock %}

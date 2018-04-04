@@ -56,7 +56,7 @@ ROOT_URLCONF = 'yaksh.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,"templates")],
+        'DIRS': ["interface/static/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,23 +75,23 @@ WSGI_APPLICATION = 'yaksh.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': "contribute",
-        # The following settings are not used with sqlite3:
-        'USER': "username",
-        'PASSWORD': "password",
-        'HOST': 'localhost', # Empty for localhost through domain sockets or '1$
-        'PORT': 3306,
-    },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': "contribute",
+#         # The following settings are not used with sqlite3:
+#         'USER': "username",
+#         'PASSWORD': "password",
+#         'HOST': 'localhost', # Empty for localhost through domain sockets or '1$
+#         'PORT': 3306,
+#     },
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -131,4 +131,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = 'templates'
+STATIC_ROOT='interface/static/'
+
+LOGIN_URL = "/login/"
+
+CODESERVER_HOSTNAME = "localhost" # Address of the yaksh code server
+
+CODESERVER_PORT = 55555

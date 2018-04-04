@@ -1,13 +1,16 @@
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
                               Rating, Review, QuestionBank)
+from yaksh.settings import CODESERVER_HOSTNAME,CODESERVER_PORT
+from interface.forms import (RegistrationForm, QuestionForm)
 from django.shortcuts import render,get_object_or_404
-from django.http import HttpResponse,HttpResponseRedirect, JsonResponse, Http404
-from interface.forms import *
+from django.http import HttpResponse,HttpResponseRedirect, Http404
 from django.forms.models import inlineformset_factory
 from django.db.models import Q
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout,login
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -20,20 +23,20 @@ import random
 
 
 def is_moderator(user):
-    """Check if the user is having moderator rights"""
+    """Check if the user is in the moderator group"""
     if user.groups.filter(name='moderator').exists():
         return True
 
 def is_reviewer(user):
+    """Check if the user is in the reviewer group"""
     if user.groups.filter(name='reviewer').exists():
         return True
 
-def show_home(request):  
-    
+def show_home(request):
     if request.user.is_authenticated():  
         return HttpResponseRedirect(reverse('next_login'))
     else:
-        return render(request, 'home.html', {'type':'guest'})
+        return render(request, 'home.html')
         
 def register(request):
     if request.method == 'POST':
@@ -44,15 +47,15 @@ def register(request):
             password=form.cleaned_data['password1'],
             email=form.cleaned_data['email']
             )
-            return render(request,'notice.html',{'notice':"<b>Thank you !</b> Your registration success.<br /> <a href=\"/login\" >Login</a>"})
+            messages.add_message(request, messages.SUCCESS,
+                                 """<b>You have successfully registered!</b>
+                                 You can login now.
+                                 """)
     else:
         form = RegistrationForm()
     variables = RequestContext(request, {'form': form})
  
-    return render_to_response('registration/register.html', variables)
-
-def register_success(request):
-    return render_to_response('registration/success.html')
+    return render_to_response('register.html', variables)
  
 def logout_page(request):
     logout(request)
@@ -60,13 +63,12 @@ def logout_page(request):
 
 @login_required
 def next_login(request):
-
     if request.user.is_authenticated():
         if is_reviewer(request.user):
             return show_review_questions(request)
-        return render(request, 'dashboard.html', {'type':'user', "name":request.user})
+        return render(request, 'dashboard.html')
     else:
-        return render(request, 'home.html', {'type':'guest'})
+        return render(request, 'home.html')
 
 @login_required
 def show_all_questions(request):
@@ -86,18 +88,10 @@ def show_all_questions(request):
                                                     )
                 for question in questions:
                     question.delete()
-    if is_moderator(user):
-        questions = Question.objects.all()
-        context['admin'] = True
-        context['remaining'] = "None"
-
-    else:
-        questions = Question.objects.filter(user_id=user.id)
-        count = questions.count()
-        remaining = 5-count
-        context['remaining'] = remaining
-        context['admin'] = False
-
+    questions = Question.objects.filter(user_id=user.id)
+    count = questions.count()
+    remaining = 5-count
+    context['remaining'] = remaining
     context['questions'] = questions
     return render(request, "showquestions.html", context)
 
@@ -195,10 +189,14 @@ def submit_to_code_server(question_id):
 
     question = Question.objects.get(id=question_id)
     consolidate_answer = question.consolidate_answer_data(question.solution)
-    url = "http://localhost:55555"
+    url = "http://{0}:{1}".format(CODESERVER_HOSTNAME, CODESERVER_PORT)
     uid = "fellowship" + str(question_id)
     status = False
-    submit = requests.post(url, data=dict(uid=uid, json_data=consolidate_answer, user_dir=""))
+    submit = requests.post(url, data=dict(uid=uid, 
+                                          json_data=consolidate_answer,
+                                          user_dir=""
+                                          )
+                            )
     while not status:
         result_state = get_result(url, uid)
         stat = result_state.get("status") 
@@ -235,10 +233,11 @@ def show_review_questions(request):
 def get_reviewer_questions(user, question_bank):
     existing_questions = question_bank.question_bank\
                                       .values_list("id", flat=True)
-    questions = list(Question.objects.all().exclude(Q(user=user)
-                                                    | Q(status=False)
-                                                    | Q(id__in=existing_questions)
-                                                    )
+    questions = list(Question.objects.all().exclude(
+                                                Q(user=user)
+                                                | Q(status=False)
+                                                | Q(id__in=existing_questions)
+                                                )
                      )
     random.shuffle(questions)
     return questions[:(9-question_bank.question_bank.count())]
