@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
 import json
-import os
 
 question_status_choices = (
         (1, "Question doesn't make sense."),
@@ -115,7 +114,7 @@ class Rating(models.Model):
     avg_peer_rating = models.FloatField(default=0.0)
 
     def __str__(self):  
-        return "Rating for {0}".format(question.summary)
+        return "Rating for {0}".format(self.question.summary)
         
 
 class QuestionReviewDetails(models.Model):
@@ -129,7 +128,7 @@ class QuestionReviewDetails(models.Model):
     skipped = models.BooleanField(default=False)
 
     def __str__(self):  
-        return "Review for {0}".format(question.summary)
+        return "Review for {0}".format(self.question.summary)
 
 
 class Review(models.Model):
