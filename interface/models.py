@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 import json
 
-question_status_choices = (
+question_skip_choices = (
         (1, "Question doesn't make sense."),
         (2, "Question makes sense, but is too difficult to solve."),
         (3, "Question is correct, but the test cases are wrong."),
@@ -60,6 +60,9 @@ class Question(models.Model):
     #status of question
     status = models.BooleanField(default=False)
 
+    # All reviews for the question
+    reviews = models.ManyToManyField("Review")
+
     def __str__(self):
         return  self.summary
     
@@ -90,6 +93,7 @@ class TestCase(models.Model):
     question = models.ForeignKey(Question, blank=True, null=True)
     type = models.CharField(max_length=24, default="stdiobasedtestcase")
 
+
 class StdIOBasedTestCase(TestCase):
     expected_input = models.TextField(default=None, blank=True, null=True)
     expected_output = models.TextField(default=None)
@@ -106,38 +110,32 @@ class StdIOBasedTestCase(TestCase):
             format(
                 self.expected_output, self.expected_input
             )
-    
 
-class Rating(models.Model):
+
+class AverageRating(models.Model):
+    # Average Rating by moderators and peers for a question.
     question = models.ForeignKey(Question)
     avg_moderator_rating = models.FloatField(default=0.0)
     avg_peer_rating = models.FloatField(default=0.0)
 
     def __str__(self):  
-        return "Rating for {0}".format(self.question.summary)
-        
-
-class QuestionReviewDetails(models.Model):
-    question = models.ForeignKey(Question)
-    rating = models.IntegerField(default=3, choices=rating_choice)
-    comments = models.TextField(null=True, blank=True)
-    check_citation = models.BooleanField(default=False)
-    question_status = models.IntegerField(blank=True, null=True,
-                                          choices=question_status_choices
-                                          )
-    last_answer = models.TextField(null=True, blank=True)
-    skipped = models.BooleanField(default=False)
-
-    def __str__(self):  
-        return "Review for {0}".format(self.question.summary)
+        return "Average Rating for {0}".format(self.question.summary)
 
 
 class Review(models.Model):
-    user = models.ForeignKey(User)
-    admin_review = models.BooleanField(default=False)
-    question_details = models.ManyToManyField(QuestionReviewDetails,
-                                              related_name="question_details"
-                                              )
+    reviewer = models.ForeignKey(User)
+    rating = models.IntegerField(default=3, choices=rating_choice)
+    comments = models.TextField(null=True, blank=True)
+    check_citation = models.BooleanField(default=False)
+    reason_for_skip = models.IntegerField(blank=True, null=True,
+                                          choices=question_skip_choices
+                                          )
+    status = models.BooleanField(default=False)
+    last_answer = models.TextField(null=True, blank=True)
+
+    def __str__(self):  
+        return "Review by {0}".format(self.reviewer.get_full_name())
+
 
 class QuestionBank(models.Model):
     user = models.ForeignKey(User)

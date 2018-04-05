@@ -1,5 +1,5 @@
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
-                              Rating, Review, QuestionBank)
+                              AverageRating, Review, QuestionBank)
 from yaksh.settings import CODESERVER_HOSTNAME,CODESERVER_PORT
 from interface.forms import (RegistrationForm, QuestionForm)
 from django.shortcuts import render
@@ -251,16 +251,23 @@ def check_question(request, question_id):
     context = {}
     if not is_reviewer(user) and not is_moderator(user):
         raise Http404("You are not allowed to view this page.")
-    if request.method == 'POST':
-        if request.POST.get('answer'):
-            result = submit_to_code_server(question_id,
-                                           request.POST.get("answer")
-                                           )
-            if result.get("success") == False:
-                context["result"] = result.get("error")
+
     try:
         question = Question.objects.get(id=question_id)
-    except Question.DOesNotExist:
+        review, created = question.reviews.get_or_create(reviewer=user)
+    except Question.DoesNotExist:
         raise Http404("The Question you are trying to review doesn't exist.")
+    except Review.MultipleObjectsReturned:
+        review = question.reviews.filter(reviewer=user).order_by("id").last()
+
+    if request.method == 'POST' and 'check' in request.POST:
+        if request.POST.get('answer'):
+            answer = request.POST.get('answer')
+            review.last_answer = answer
+            review.save()
+            result = submit_to_code_server(question_id, answer)
+            if result.get("success") == False:
+                context["result"] = result.get("error")
     context['question'] = question
+    context['last_answer'] = review.last_answer
     return render(request, "checkquestion.html", context)

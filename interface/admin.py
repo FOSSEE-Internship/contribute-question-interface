@@ -1,12 +1,12 @@
 from django.contrib import admin, messages
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import GroupAdmin
-from interface.models import Question, TestCase, Rating, Review
+from interface.models import Question, TestCase, AverageRating, Review
 from interface.views import submit_to_code_server
 
 admin.site.register(Question)
 admin.site.register(TestCase)
-admin.site.register(Rating)
+admin.site.register(AverageRating)
 admin.site.register(Review)
 
 

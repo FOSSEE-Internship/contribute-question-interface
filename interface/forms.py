@@ -1,6 +1,6 @@
 from django import forms
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
-                              Rating, Review, QuestionBank)
+                              AverageRating, Review, QuestionBank)
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 class RegistrationForm(forms.Form):
@@ -28,4 +28,4 @@ class QuestionForm(forms.ModelForm):
 
     class Meta:
         model = Question
-        exclude = ['user', "type", "language", "status"]
+        exclude = ['user', "type", "language", "status", "reviews"]
