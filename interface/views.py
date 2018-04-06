@@ -41,7 +41,7 @@ def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            User.objects.create_user(
+            user = User.objects.create_user(
             username=form.cleaned_data['username'],
             password=form.cleaned_data['password1'],
             email=form.cleaned_data['email']
@@ -220,6 +220,7 @@ def get_result(url, uid):
 def show_review_questions(request):
     user = request.user
     context = {}
+    context["user"] = user
     if is_moderator(user):
         context['questions'] = Question.objects.filter(status=True)
         status = "moderator"
@@ -274,6 +275,8 @@ def check_question(request, question_id):
             if not result.get("success"):
                 context["result"] = result.get("error")
             elif result.get("success"):
+                review.correct_answer = True
+                review.save()
                 return redirect("/postreview/submit/{0}".format(question.id))
     elif request.method == 'POST' and 'skip' in request.POST:
         return redirect("/postreview/skip/{0}".format(question.id))
@@ -296,24 +299,26 @@ def post_review(request, submit, question_id):
         if request.method == 'POST':
             qform = SkipForm(request.POST, instance=review)
             if qform.is_valid():
-                qform.save()
-                messages.add_message(request, messages.SUCCESS,
-                                    """Your review has been
-                                       successfully submitted.
-                                    """
-                                    )
+                question_review = qform.save(commit=False)
+                question_review.skipped = True
+                question_review.status = True
+                question_review.save()
                 return redirect("/dashboard")
     else:
-        rform = ReviewForm(instance=review)
-        if request.method == 'POST':
-            qform = ReviewForm(request.POST, instance=review)
-            if qform.is_valid():
-                qform.save()
-                messages.add_message(request, messages.SUCCESS,
-                                    """Your review has been
-                                       successfully submitted.
-                                    """
-                                    )
-                return redirect("/dashboard")
+        if review.correct_answer:
+            rform = ReviewForm(instance=review)
+            if request.method == 'POST':
+                qform = ReviewForm(request.POST, instance=review)
+                if qform.is_valid():
+                    question_review = qform.save(commit=False)
+                    question_review.skipped = False
+                    question_review.status = True
+                    question_review.reasons_for_skip = None
+                    question_review.save()
+                    return redirect("/dashboard")
+        else:
+            return redirect("/dashboard")
     context["rform"] = rform
-    return render(request, "skipquestion.html", context)
+    context["submit"] = submit
+    context["question"] = question
+    return render(request, "submit_review.html", context)

@@ -1,5 +1,5 @@
 {% extends "dashboard.html" %}
-
+{% load custom_filter %}
 {% block navbar %}
 <li><a href="{% url 'home' %}">Home</a></li>
 <li class="active"><a href="{% url 'show_all_questions' %}">Contribution</a></li>
@@ -43,7 +43,7 @@
     <th> Language </th>
     <th> Type </th>  
     <th> Marks </th>
-    <th> Status </th>
+    <th> Reviewed </th>
     </tr>
     </thead>
     <tbody>
@@ -54,7 +54,8 @@
 <td>{{question.language|capfirst}}</td>
 <td>{{question.type|capfirst}}</td>
 <td>{{question.points}}</td>
-{% if question.status %}
+{% get_review_status question user as review_status %}
+{% if review_status %}
     <td><span class ="glyphicon glyphicon-ok text-success"/></td>
 {% else %}
     <td><span class ="glyphicon glyphicon-remove text-warning"/></td>

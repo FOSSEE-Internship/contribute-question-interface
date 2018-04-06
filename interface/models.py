@@ -127,15 +127,17 @@ class Review(models.Model):
     rating = models.IntegerField(default=3, choices=rating_choice)
     comments = models.TextField(null=True, blank=True)
     check_citation = models.BooleanField(default=False,
-                                         help_text="""Check if citation 
-                                                   provided is correct or not.
+                                         help_text="""(Check if the citation 
+                                                   provided is correct or not)
                                                    """
                                          )
     reason_for_skip = models.IntegerField(blank=True, null=True,
                                           choices=question_skip_choices
                                           )
+    skipped = models.BooleanField(default=False)
     status = models.BooleanField(default=False)
     last_answer = models.TextField(null=True, blank=True)
+    correct_answer = models.BooleanField(default=False)
 
     def __str__(self):  
         return "Review by {0}".format(self.reviewer.get_full_name())

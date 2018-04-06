@@ -1,0 +1,61 @@
+{% extends "navigation.html" %}
+{% load custom_filter %}
+{% load staticfiles %}
+
+{% block navbar %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="{% url 'show_all_questions' %}">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+{% endblock %}
+
+{% block content %}
+<form  action="" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+<div class="col-sm-6" >
+	{% if submit == "submit" %}
+	<center><h3><u>Question Details</u>:</h3></center>
+	<br>
+	<table class="table table-bordered">
+		<tr>
+			<td><b>Question Summary:</b></td>
+			<td>{{question.summary}}</td>
+		</tr>
+		<tr>
+			<td><b>Question Points:</b></td>
+			<td>{{question.points}}</td>
+		</tr>
+		<tr>
+			<td><b>Question Description:</b></td>
+			<td>{{question.description}}</td>
+		</tr>
+		<tr>
+			<td><b>Question Creator's Solution:</b></td>
+			<td><pre><code>{{question.solution}}</code></pre></td>
+		</tr>
+		<tr>
+			<td><b>Original or Adapted</b></td>
+			<td>{{ question.originality|capfirst }}</td>
+		</tr>
+		<tr>
+			<td><b>Cited Source:</b>&nbsp;(if any)</td>
+			<td>{{ question.citation }}</td>
+		</tr>
+	</table>
+	<br><br>
+	<center><h3><u>Submit your review:</u></h3></center>
+	{% else %}
+	<center><h3><u>State reasons for skipping question</u>:</h3></center>
+	{% endif %}
+
+	<br>{{rform.as_p}}<br>
+<center>
+<button class="btn btn-success" type="submit" name="submit_review" id="submit_review">
+Submit
+ </button>&nbsp;&nbsp;
+ <a href="{%url 'check_question' question.id %}" class="btn btn-primary">Go back</a>
+ </center>
+</div>
+</form>
+<br><br>
+{% endblock %}
