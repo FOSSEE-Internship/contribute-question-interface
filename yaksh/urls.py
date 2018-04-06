@@ -22,6 +22,8 @@ urlpatterns = [
         name="show_review_questions"),
     url(r'^checkquestion/(?P<question_id>\d+)/$',
         check_question,name="check_question"),
+    url(r'^postreview/(?P<submit>skip|submit)/(?P<question_id>\d+)/$',
+        post_review,name="post_review"),
 
 #     url(r'^questions/ratemcq/$',"interface.views.rate_mcq",name="rate_mcq"),
 #     url(r'^questions/postcomment/$',"interface.views.rate_post",name="rate_post_comment"),

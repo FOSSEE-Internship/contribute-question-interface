@@ -1,8 +1,10 @@
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
-                              Rating, Review, QuestionBank)
+                              AverageRating, Review, QuestionBank)
 from yaksh.settings import CODESERVER_HOSTNAME,CODESERVER_PORT
-from interface.forms import (RegistrationForm, QuestionForm)
-from django.shortcuts import render
+from interface.forms import (RegistrationForm, QuestionForm,
+                             SkipForm, ReviewForm
+                             )
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, Http404
 from django.forms.models import inlineformset_factory
 from django.db.models import Q
@@ -10,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from urllib.parse import urljoin
@@ -44,6 +46,9 @@ def register(request):
             password=form.cleaned_data['password1'],
             email=form.cleaned_data['email']
             )
+            group = Group.objects.filter(name="reviewer")
+            if group.exists():
+                user.groups.add(*group)
             messages.add_message(request, messages.SUCCESS,
                                  """<b>You have successfully registered!</b>
                                  You can login now.
@@ -180,11 +185,16 @@ def add_question(request, question_id=None):
         "add_question.html", context, context_instance=ci
     )
 
-def submit_to_code_server(question_id):
+def submit_to_code_server(question_id, solution=None):
     """Check if question solution and testcases are correct."""
 
     question = Question.objects.get(id=question_id)
-    consolidate_answer = question.consolidate_answer_data(question.solution)
+    if solution:
+        consolidate_answer = question.consolidate_answer_data(solution)
+    else:
+        consolidate_answer = question.consolidate_answer_data(
+                                      question.solution
+                                      )
     url = "http://{0}:{1}".format(CODESERVER_HOSTNAME, CODESERVER_PORT)
     uid = "fellowship" + str(question_id)
     status = False
@@ -243,13 +253,67 @@ def check_question(request, question_id):
     """Review question on the interface."""
 
     user = request.user
-    ci = RequestContext(request)
     context = {}
     if not is_reviewer(user) and not is_moderator(user):
         raise Http404("You are not allowed to view this page.")
+
     try:
         question = Question.objects.get(id=question_id)
-    except Question.DOesNotExist:
+        review, created = question.reviews.get_or_create(reviewer=user)
+    except Question.DoesNotExist:
         raise Http404("The Question you are trying to review doesn't exist.")
+    except Review.MultipleObjectsReturned:
+        review = question.reviews.filter(reviewer=user).order_by("id").last()
+
+    if request.method == 'POST' and 'check' in request.POST:
+        if request.POST.get('answer'):
+            answer = request.POST.get('answer')
+            review.last_answer = answer
+            review.save()
+            result = submit_to_code_server(question_id, answer)
+            if not result.get("success"):
+                context["result"] = result.get("error")
+            elif result.get("success"):
+                return redirect("/postreview/submit/{0}".format(question.id))
+    elif request.method == 'POST' and 'skip' in request.POST:
+        return redirect("/postreview/skip/{0}".format(question.id))
+
     context['question'] = question
+    context['last_answer'] = review.last_answer
     return render(request, "checkquestion.html", context)
+
+@login_required
+def post_review(request, submit, question_id):
+    user = request.user
+    context = {}
+    try:
+        question = Question.objects.get(id=question_id)
+    except Question.DoesNotExist:
+        raise Http404("The Question you are trying to review doesn't exist.")
+    review = question.reviews.filter(reviewer=user).order_by("id").last()
+    if submit=="skip":
+        rform = SkipForm(instance=review)
+        if request.method == 'POST':
+            qform = SkipForm(request.POST, instance=review)
+            if qform.is_valid():
+                qform.save()
+                messages.add_message(request, messages.SUCCESS,
+                                    """Your review has been
+                                       successfully submitted.
+                                    """
+                                    )
+                return redirect("/dashboard")
+    else:
+        rform = ReviewForm(instance=review)
+        if request.method == 'POST':
+            qform = ReviewForm(request.POST, instance=review)
+            if qform.is_valid():
+                qform.save()
+                messages.add_message(request, messages.SUCCESS,
+                                    """Your review has been
+                                       successfully submitted.
+                                    """
+                                    )
+                return redirect("/dashboard")
+    context["rform"] = rform
+    return render(request, "skipquestion.html", context)

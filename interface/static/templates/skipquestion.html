@@ -1,0 +1,23 @@
+{% extends "navigation.html" %}
+{% load custom_filter %}
+{% load staticfiles %}
+
+{% block navbar %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="{% url 'show_all_questions' %}">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+{% endblock %}
+
+{% block content %}
+<form  action="" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+<div class="col-md-9">
+	{{rform.as_p}}
+	<br>
+<button class="btn btn-default" type="submit" name="submit_review" id="submit_review">
+Submit
+ </button>&nbsp;&nbsp;
+</div>
+</form>
+{% endblock %}

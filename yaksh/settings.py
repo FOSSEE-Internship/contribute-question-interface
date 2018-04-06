@@ -138,3 +138,5 @@ LOGIN_URL = "/login/"
 CODESERVER_HOSTNAME = "localhost" # Address of the yaksh code server
 
 CODESERVER_PORT = 55555
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'

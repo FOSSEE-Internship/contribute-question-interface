@@ -12,6 +12,7 @@
 {% block subtitle %} Review Questions {% endblock subtitle %}
 
 {% block content %}
+
 <center>
     <h2>Review Questions</h2>
 <hr>
@@ -20,7 +21,13 @@
     <h4>You are now a {{status}}</h4>
 </div>
 {% endif %}
+<br><br>
 </center>
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-success">{{message|safe}}</div>
+{% endfor %}
+{% endif %}
 <div class="row">
 <!-- Show questions -->
 <div id="show" class= "tab-pane fade in active">
