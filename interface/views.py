@@ -1,8 +1,8 @@
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
                               AverageRating, Review, QuestionBank)
 from yaksh.settings import CODESERVER_HOSTNAME,CODESERVER_PORT
-from interface.forms import (RegistrationForm, QuestionForm)
-from django.shortcuts import render
+from interface.forms import (RegistrationForm, QuestionForm, SkipForm)
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, Http404
 from django.forms.models import inlineformset_factory
 from django.db.models import Q
@@ -268,6 +268,30 @@ def check_question(request, question_id):
             result = submit_to_code_server(question_id, answer)
             if result.get("success") == False:
                 context["result"] = result.get("error")
+    elif request.method == 'POST' and 'skip' in request.POST:
+        return redirect("/skipquestion/{0}".format(question.id))
+
     context['question'] = question
     context['last_answer'] = review.last_answer
     return render(request, "checkquestion.html", context)
+
+@login_required
+def skip_question(request, question_id):
+    user = request.user
+    context = {}
+    try:
+        question = Question.objects.get(id=question_id)
+    except Question.DoesNotExist:
+        raise Http404("The Question you are trying to review doesn't exist.")
+    review = question.reviews.filter(reviewer=user).order_by("id").last()
+    skip_form = SkipForm(instance=review)
+    if request.method == 'POST':
+        qform = SkipForm(request.POST, instance=review)
+        if qform.is_valid():
+            qform.save()
+            messages.add_message(request, messages.SUCCESS,
+                                "Your review has been successfully submitted."
+                                )
+            return redirect("/dashboard")
+    context["skip_form"] = skip_form
+    return render(request, "skipquestion.html", context)

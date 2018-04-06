@@ -1,8 +1,9 @@
 from django import forms
-from interface.models import (Question, TestCase, StdIOBasedTestCase,
-                              AverageRating, Review, QuestionBank)
+from interface.models import (Question, Review)
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+
+
 class RegistrationForm(forms.Form):
     username = forms.RegexField(regex=r'^\w+$', widget=forms.TextInput(attrs=dict(required=True, max_length=30)), label=_("Username"), error_messages={ 'invalid': _("This value must contain only letters, numbers and underscores.") })
     email = forms.EmailField(widget=forms.TextInput(attrs=dict(required=True, max_length=30)), label=_("Email address"))
@@ -23,9 +24,13 @@ class RegistrationForm(forms.Form):
         return self.cleaned_data 
 
 class QuestionForm(forms.ModelForm):
-    """Creates a form to add or edit a Question.
-    It has the related fields and functions required."""
-
+    """Creates a form to add or edit a Question."""
     class Meta:
         model = Question
         exclude = ['user', "type", "language", "status", "reviews"]
+
+class SkipForm(forms.ModelForm):
+    """Creates a form to skip question and give reasons for it."""
+    class Meta:
+        model = Review
+        fields = ["reason_for_skip", "comments"]        
