@@ -13,7 +13,7 @@ rating_choice = (
         (1, "Poor"),
         (2, "Average"),
         (3, "Good"),
-        (4, "Verygood"),
+        (4, "Very Good"),
         (5, "Excellent"),
         )
 
@@ -126,7 +126,11 @@ class Review(models.Model):
     reviewer = models.ForeignKey(User)
     rating = models.IntegerField(default=3, choices=rating_choice)
     comments = models.TextField(null=True, blank=True)
-    check_citation = models.BooleanField(default=False)
+    check_citation = models.BooleanField(default=False,
+                                         help_text="""Check if citation 
+                                                   provided is correct or not.
+                                                   """
+                                         )
     reason_for_skip = models.IntegerField(blank=True, null=True,
                                           choices=question_skip_choices
                                           )

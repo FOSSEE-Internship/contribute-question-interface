@@ -1,7 +1,10 @@
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
-                              AverageRating, Review, QuestionBank)
+                              AverageRating, Review, QuestionBank
+                              )
 from yaksh.settings import CODESERVER_HOSTNAME,CODESERVER_PORT
-from interface.forms import (RegistrationForm, QuestionForm, SkipForm)
+from interface.forms import (RegistrationForm, QuestionForm,
+                             SkipForm, ReviewForm
+                             )
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, Http404
 from django.forms.models import inlineformset_factory
@@ -10,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from urllib.parse import urljoin
@@ -39,11 +42,14 @@ def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            User.objects.create_user(
+            user = User.objects.create_user(
             username=form.cleaned_data['username'],
             password=form.cleaned_data['password1'],
             email=form.cleaned_data['email']
             )
+            group = Group.objects.filter(name="reviewer")
+            if group.exists():
+                user.groups.add(*group)
             messages.add_message(request, messages.SUCCESS,
                                  """<b>You have successfully registered!</b>
                                  You can login now.
@@ -266,17 +272,19 @@ def check_question(request, question_id):
             review.last_answer = answer
             review.save()
             result = submit_to_code_server(question_id, answer)
-            if result.get("success") == False:
+            if not result.get("success"):
                 context["result"] = result.get("error")
+            elif result.get("success"):
+                return redirect("/postreview/submit/{0}".format(question.id))
     elif request.method == 'POST' and 'skip' in request.POST:
-        return redirect("/skipquestion/{0}".format(question.id))
+        return redirect("/postreview/skip/{0}".format(question.id))
 
     context['question'] = question
     context['last_answer'] = review.last_answer
     return render(request, "checkquestion.html", context)
 
 @login_required
-def skip_question(request, question_id):
+def post_review(request, submit, question_id):
     user = request.user
     context = {}
     try:
@@ -284,14 +292,29 @@ def skip_question(request, question_id):
     except Question.DoesNotExist:
         raise Http404("The Question you are trying to review doesn't exist.")
     review = question.reviews.filter(reviewer=user).order_by("id").last()
-    skip_form = SkipForm(instance=review)
-    if request.method == 'POST':
-        qform = SkipForm(request.POST, instance=review)
-        if qform.is_valid():
-            qform.save()
-            messages.add_message(request, messages.SUCCESS,
-                                "Your review has been successfully submitted."
-                                )
-            return redirect("/dashboard")
-    context["skip_form"] = skip_form
+    if submit=="skip":
+        rform = SkipForm(instance=review)
+        if request.method == 'POST':
+            qform = SkipForm(request.POST, instance=review)
+            if qform.is_valid():
+                qform.save()
+                messages.add_message(request, messages.SUCCESS,
+                                    """Your review has been
+                                       successfully submitted.
+                                    """
+                                    )
+                return redirect("/dashboard")
+    else:
+        rform = ReviewForm(instance=review)
+        if request.method == 'POST':
+            qform = ReviewForm(request.POST, instance=review)
+            if qform.is_valid():
+                qform.save()
+                messages.add_message(request, messages.SUCCESS,
+                                    """Your review has been
+                                       successfully submitted.
+                                    """
+                                    )
+                return redirect("/dashboard")
+    context["rform"] = rform
     return render(request, "skipquestion.html", context)

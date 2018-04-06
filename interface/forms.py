@@ -33,4 +33,11 @@ class SkipForm(forms.ModelForm):
     """Creates a form to skip question and give reasons for it."""
     class Meta:
         model = Review
-        fields = ["reason_for_skip", "comments"]        
+        fields = ["reason_for_skip", "comments"]
+
+
+class ReviewForm(forms.ModelForm):
+    """Creates a form to skip question and give reasons for it."""
+    class Meta:
+        model = Review
+        fields = ["rating", "comments", "check_citation"]
