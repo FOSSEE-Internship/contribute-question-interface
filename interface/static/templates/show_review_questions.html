@@ -1,0 +1,67 @@
+{% extends "dashboard.html" %}
+
+{% block navbar %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="{% url 'show_all_questions' %}">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+ {% endblock %}
+
+{% block title %} Questions {% endblock %}
+
+{% block subtitle %} Review Questions {% endblock subtitle %}
+
+{% block content %}
+<center>
+    <h2>Review Questions</h2>
+<hr>
+{% if status %}
+<div class="alert alert-info">
+    <h4>You are now a {{status}}</h4>
+</div>
+{% endif %}
+</center>
+<div class="row">
+<!-- Show questions -->
+<div id="show" class= "tab-pane fade in active">
+<form name=frm action="" method="post">
+{% csrf_token %}
+<!-- Filtering Questions  -->
+<div id="filtered-questions">
+{% if questions %}
+<table id="questions-table" class="table table-striped">
+    <thead>
+    <tr>
+    <th> Summary </th>
+    <th> Language </th>
+    <th> Type </th>  
+    <th> Marks </th>
+    <th> Status </th>
+    </tr>
+    </thead>
+    <tbody>
+
+{% for question in questions %}
+<tr>
+<td><a href="{{URL_ROOT}}/checkquestion/{{ question.id }}">{{question.summary|capfirst}}</a></td>
+<td>{{question.language|capfirst}}</td>
+<td>{{question.type|capfirst}}</td>
+<td>{{question.points}}</td>
+{% if question.status %}
+    <td><span class ="glyphicon glyphicon-ok text-success"/></td>
+{% else %}
+    <td><span class ="glyphicon glyphicon-remove text-warning"/></td>
+{% endif %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+</div>
+<br>
+</form>
+</div>
+</div>
+</div>
+<!-- End of Show questions -->
+{% endblock %}

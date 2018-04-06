@@ -1,0 +1,60 @@
+{% extends "navigation.html" %}
+{% load custom_filter %}
+{% load staticfiles %}
+{% block script %}
+<script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"/>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src=" {% static 'js/codemirror/mode/python/python.js' %}"></script>
+{% endblock %}
+
+{% block navbar %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="{% url 'show_all_questions' %}">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+ {% endblock %}
+
+ {% block content %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4>
+            <u>{{ question.summary }}</u>
+            <font class=pull-right>Points : {{ question.points }}</font>
+        </h4>
+    </div>
+    
+    <div class="panel panel-body">
+        <div class="well well-sm">
+            <font size=3 face=arial> {{ question.description|safe }} </font>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+<div class="col-md-9">
+<h4>Write your program below:</h4>
+</div>
+<div class="col-md-3">
+</div>
+</div>
+<textarea autofocus name="answer" id="answer"></textarea>
+<script type="text/javascript">
+    var global_editor = {};
+    var textarea_node = document.querySelector('#answer');
+    var options = {
+      mode: "python",
+      gutter: true,
+      lineNumbers: true,
+      onChange: function (instance, changes) {
+          render();
+      }
+  };
+  
+  // Initialize the codemirror editor
+  global_editor.editor = CodeMirror.fromTextArea(textarea_node, options);
+  // Setting code editors initial content
+  global_editor.editor.setValue(init_val);
+
+</script>
+<br>
+{% endblock %}
