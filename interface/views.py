@@ -283,6 +283,7 @@ def check_question(request, question_id):
 
     context['question'] = question
     context['last_answer'] = review.last_answer
+    context['correct_answer'] = review.correct_answer
     return render(request, "checkquestion.html", context)
 
 @login_required
