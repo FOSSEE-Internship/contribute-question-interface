@@ -1,11 +1,6 @@
 {% extends "navigation.html" %}
 {% load custom_filter %}
 {% load staticfiles %}
-{% block script %}
-<script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"/>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src=" {% static 'js/codemirror/mode/python/python.js' %}"></script>
-{% endblock %}
 
 {% block navbar %}
 <li><a href="{% url 'home' %}">Home</a></li>
@@ -15,6 +10,14 @@
  {% endblock %}
 
  {% block content %}
+<link rel="stylesheet" href="{% static 'css/codemirror/lib/codemirror.css' %}" type="text/css" />
+<style type="text/css">
+  .CodeMirror{
+    border-style: groove;
+  }
+</style>
+<form id="code" action="{% url 'check_question' question.id %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
 <div class="panel panel-default">
     <div class="panel-heading">
         <h4>
@@ -34,10 +37,20 @@
 <div class="col-md-9">
 <h4>Write your program below:</h4>
 </div>
-<div class="col-md-3">
-</div>
 </div>
 <textarea autofocus name="answer" id="answer"></textarea>
+<script  type="text/javascript" src= "{% static 'js/codemirror/lib/codemirror.js' %}"></script>
+<script src="{% static 'js/codemirror/mode/python/python.js' %}"></script>
+<script src="{% static 'js/codemirror/mode/python/python.js' %}"></script>
+{% if last_answer %}
+<script type="text/javascript">
+  var set_val = "{{last_answer|escape_quotes|safe}}"
+</script>
+{% else %}
+<script type="text/javascript">
+  var set_val = ""
+</script>
+{% endif %}
 <script type="text/javascript">
     var global_editor = {};
     var textarea_node = document.querySelector('#answer');
@@ -52,9 +65,103 @@
   
   // Initialize the codemirror editor
   global_editor.editor = CodeMirror.fromTextArea(textarea_node, options);
-  // Setting code editors initial content
-  global_editor.editor.setValue(init_val);
 
+  global_editor.editor.setValue(set_val);
+
+  // Setting code editors initial content
 </script>
 <br>
+{% if not correct_answer %}
+<button class="btn btn-success" type="submit" name="check" id="check" >
+  <span class="glyphicon glyphicon-cog"></span>
+   Check Answer
+ </button>
+{% else %}
+<a href="{% url 'post_review' 'submit' question.id %}" class="btn btn-success">
+Submit Review
+</a>
+{% endif %}
+ &nbsp;&nbsp;
+
+<a href="{% url 'show_review_questions' %}" class="btn btn-primary">
+  <span class="glyphicon glyphicon-arrow-left"></span>
+  Go Back to Questions
+</a>&nbsp;&nbsp;
+
+<button class="btn btn-danger" type="submit" name="skip" id="skip">
+  <span class="glyphicon glyphicon-remove"></span>
+  Skip Question
+</button>&nbsp;&nbsp;
+
+</form>
+<br><br>
+{% if result %}
+<div class = "alert alert-danger">
+<p>Hey, we checked your answer. We encountered the following error:</p>
+</div>
+{%for error in result %}
+      {% if error.type == 'assertion' %}
+        
+        <p> <b>The following error took place: </b></p>
+        <table class="table table-bordered" width="100%" id='assertion'>
+        <col width="30%">
+            <tr class = "active">
+              <td><b>Exception Name: </b></td>
+              <td><span style="color: #d9534f">{{error.exception}}</span></td>
+          </tr>
+          <tr>
+            <td><b>Exception Message: </b></td><td>{{error.message}}</td>
+          </tr>
+          <tr>
+            {% if error.traceback %}
+            <td><b>Full Traceback: </b></td>
+            <td><pre>{{error.traceback}}</pre></td>
+            {% endif %}
+          </tr>
+        </table>
+
+      {% elif error.type == 'stdio' %}
+  {% if error.given_input %}
+           <table class="table table-bordered">
+            <col width="30%">
+              <tr class = "active">
+              <td> For given Input value(s):</td>
+              <td>{{error.given_input}}</td>
+              </tr>
+           </table>
+         {% endif %}
+
+          <table class="table table-bordered" width="100%" id="stdio">
+            <col width="10%">
+            <col width="40%">
+            <col width="40%">
+            <col width="10%">
+            <tr class="info">
+            <th><center>Line No.</center></th>
+            <th><center>Expected Output</center></th>
+            <th><center>User output</center></th>
+            <th><center>Status</center></th>
+            </tr>
+            {% for expected,user in error.expected_output|zip:error.user_output %}
+            <td> {{forloop.counter}} </td>
+            <td>{{expected|default:""}} </td>
+            <td>{{user|default:""}}</td>
+            {% if forloop.counter0 in error.error_line_numbers or not expected or not user %}
+            <td><span class ="glyphicon glyphicon-remove text-warning"/></td>
+            {% else %}
+            <td><span class ="glyphicon glyphicon-ok text-success"/></td>
+            {% endif %}
+            </tr>
+            {% endfor %}
+            </table>
+            <table width="100%" class='table table-bordered'>
+            <col width="10">
+            <tr class = "danger">
+            <td><b>Error:</b></td>
+             <td>{{error.error_msg}}</td>
+             </tr>
+            </table>
+{% endif %}            
+{% endfor %}
+{% endif %}
 {% endblock %}
