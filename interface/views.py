@@ -65,7 +65,11 @@ def logout_page(request):
 
 @login_required
 def next_login(request):
-    if request.user.is_authenticated():
+    user = request.user
+    if user.is_authenticated():
+        group = Group.objects.filter(name="reviewer")
+        if group.exists():
+            user.groups.add(*group)
         if is_reviewer(request.user):
             return show_review_questions(request)
         return render(request, 'dashboard.html')
@@ -246,8 +250,14 @@ def get_reviewer_questions(user, question_bank):
                                                 )
                      )
     random.shuffle(questions)
-    return questions[:(9-question_bank.question_bank.count())]
 
+    all_questions = questions[:(10-question_bank.question_bank.count())]
+    mod_group = Group.objects.get(name="moderator").user_set.all()
+    mod_questions = Question.objects.filter(user=mod_group)
+    if mod_questions:
+        mod_choice = random.choice(mod_questions)
+        all_questions[-1] = mod_choice
+    return all_questions
 
 @login_required
 def check_question(request, question_id):
