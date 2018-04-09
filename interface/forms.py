@@ -1,7 +1,9 @@
 from django import forms
-from models import *
+from interface.models import (Question, Review)
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+
+
 class RegistrationForm(forms.Form):
     username = forms.RegexField(regex=r'^\w+$', widget=forms.TextInput(attrs=dict(required=True, max_length=30)), label=_("Username"), error_messages={ 'invalid': _("This value must contain only letters, numbers and underscores.") })
     email = forms.EmailField(widget=forms.TextInput(attrs=dict(required=True, max_length=30)), label=_("Email address"))
@@ -21,56 +23,21 @@ class RegistrationForm(forms.Form):
                 raise forms.ValidationError(_("The two password fields did not match."))
         return self.cleaned_data 
 
-class MultipleChoiceQuestionForm(forms.ModelForm):
-		class Meta:
-			model = MultipleChoiceQuestion
-			fields = [
-					"title",
-					"text",
-					"language",
-					"marks",
-					"status",
-					"no_of_inputs",
-				     ]
+class QuestionForm(forms.ModelForm):
+    """Creates a form to add or edit a Question."""
+    class Meta:
+        model = Question
+        exclude = ['user', "type", "language", "status", "reviews"]
 
-class CodeQuestionForm(forms.ModelForm):
-	    class Meta:
-	    	model = CodeQuestion
-	    	fields = [
-	    	       "title",
-	    	       "text",
-	    	       "language",
-	    	       "marks",
-	    	       "status",
-	    	       "function_name",
-	    	 		 ]
-
-class InputForm(forms.ModelForm):
-		class Meta:
-			model = Input
-			fields = [
-					"_type",
-					"value",
-					]
+class SkipForm(forms.ModelForm):
+    """Creates a form to skip question and give reasons for it."""
+    class Meta:
+        model = Review
+        fields = ["reason_for_skip", "comments"]
 
 
-class OutputForm(forms.ModelForm):
-		class Meta:
-			model = Output
-			fields = [
-					"_type",
-					"value",
-					]
-
-
-
-
-'''class TestCaseForm(forms.ModelForm):
-	    class Meta:
-	    	model = TestCase
-	    	fields = [
-	    	       "no_of_inputs",
-	    	       "no_of_outputs",
-	    	       
-	    	         ]'''
-	    			    	
+class ReviewForm(forms.ModelForm):
+    """Creates a form to skip question and give reasons for it."""
+    class Meta:
+        model = Review
+        fields = ["rating", "comments", "check_citation"]

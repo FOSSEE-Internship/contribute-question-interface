@@ -1,0 +1,136 @@
+{% extends "navigation.html" %}
+{% load custom_filter %}
+{% block script %}
+<script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"/>
+{% endblock %}
+
+{% block navbar %}
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="{% url 'show_all_questions' %}">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+ {% endblock %}
+
+{% block pagetitle %} Add Question {% endblock pagetitle %}
+
+{% block onload %} onload='javascript:textareaformat();' {% endblock %}
+
+{% block content %}
+<script>
+  $(document).ready(function(){
+$('#id_description').bind('keypress', function (event){
+    document.getElementById('my').innerHTML = document.getElementById('id_description').value ;
+  });
+$("input[name*='type']").attr("readonly", true);
+});
+
+ </script>
+{% if question %}
+<form action="{{ URL_ROOT }}/addquestion/{{ question.id }}/" method="post" name="frm" enctype="multipart/form-data">
+{% else %}
+<form action="{{ URL_ROOT }}/addquestion/" method="post" name="frm" enctype="multipart/form-data">
+{% endif %}
+  {% csrf_token %}
+  <center><table class="table">
+  <tr><td>Summary: <td>{{ qform.summary }}{{ qform.summary.errors }}
+  <tr><td>Points:<td>{{qform.points }}{{ qform.points.errors }} 
+    <tr><td><strong>Rendered: </strong><td><p id='my'></p>
+  <tr><td>Description: <td>{{ qform.description}}  {{qform.description.errors}}
+  {% if solution_error %}
+  <tr style="background-color: #f7a3a0"><td>Solution: <td>{{ qform.solution }}{{qform.solution.errors}}
+  <br><br>
+  <p> <b>The following error took place: </b></p>
+        <table class="table table-bordered" width="100%" id='assertion'>
+        <col width="30%">
+            <tr class = "active">
+              <td><b>Exception Name: </b></td>
+              <td><span style="color: #d9534f">{{solution_error.0.exception}}</span></td>
+          </tr>
+          <tr>
+            <td><b>Exception Message: </b></td><td>{{solution_error.0.message}}</td>
+          </tr>
+          <tr>
+            {% if soltion_error.0.traceback %}
+            <td><b>Full Traceback: </b></td>
+            <td><pre>{{error.traceback}}</pre></td>
+            {% endif %}
+          </tr>
+        </table>
+  </span>
+  {% else %}
+  <tr><td>Solution: <td>{{ qform.solution }}{{qform.solution.errors}}
+  {% endif %}
+    <tr><td>Citation: <td>{{ qform.citation }}{{qform.citation.errors}}
+ <tr><td>Source: <td>{{ qform.originality }} {{qform.originality.errors}}
+  </table></center>
+  {% for formset in formsets %}
+  <div class="form-group">
+      {{ formset.management_form }}
+
+      {% for form in formset %}
+        <div class="link-formset well">
+          {{ form.as_p }}
+          {% if form.expected_output.value %}
+            {% get_testcase_error tc_error form.expected_output.value as stdio_dict %}
+            {% if stdio_dict.success  %}
+                {% if stdio_dict.tc_error.given_input %}
+                 <table class="table table-bordered">
+                  <col width="30%">
+                    <tr class = "active">
+                    <td> For given Input value(s):</td>
+                    <td>{{stdio_dict.tc_error.given_input}}</td>
+                    </tr>
+                 </table>
+               {% endif %}
+
+                <table class="table table-bordered" width="100%" id="stdio">
+                  <col width="10%">
+                  <col width="40%">
+                  <col width="40%">
+                  <col width="10%">
+                  <tr class="info">
+                  <th><center>Line No.</center></th>
+                  <th><center>Expected Output</center></th>
+                  <th><center>User output</center></th>
+                  <th><center>Status</center></th>
+                  </tr>
+                  {% for expected,user in stdio_dict.tc_error.expected_output|zip:stdio_dict.tc_error.user_output %}
+                  <td> {{forloop.counter}} </td>
+                  <td>{{expected|default:""}} </td>
+                  <td>{{user|default:""}}</td>
+                  {% if forloop.counter0 in stdio_dict.tc_error.error_line_numbers or not expected or not user %}
+                  <td><span class ="glyphicon glyphicon-remove text-warning"/></td>
+                  {% else %}
+                  <td><span class ="glyphicon glyphicon-ok text-success"/></td>
+                  {% endif %}
+                  </tr>
+                  {% endfor %}
+                  </table>
+                  <table width="100%" class='table table-bordered'>
+                  <col width="10">
+                  <tr class = "danger">
+                  <td><b>Error:</b></td>
+                   <td>{{stdio_dict.tc_error.error_msg}}</td>
+                   </tr>
+                </table>
+          {% else %}
+          <div class="alert alert-success">
+            Output of the Solution matches with the expected output
+          </div>
+          {% endif %} {# closes stdio_error #}
+        </div>
+        {% endif %} {# closes form.expected_output.value #}
+      {% endfor %}
+
+  </div>
+  {% endfor %}
+  <p><label for="case_type">Add Test Case:</label> <select id="case_type" name="case_type" onchange="frm.submit()">
+      <option value="" selected="selected">---------</option>
+      <option value="stdiobasedtestcase">StdIO </option>
+  </select></p>
+  <center>
+    <button class="btn" type="submit" name="save_question">Check and Save</button>
+    <button class="btn" type="button" name="button" onClick='location.replace("{{URL_ROOT}}/showquestions/");'>Back to Questions</button>
+  </center>
+</form>
+{% endblock %}

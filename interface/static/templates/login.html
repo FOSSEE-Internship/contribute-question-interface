@@ -1,0 +1,38 @@
+
+{% extends "navigation.html" %}
+{% block title %}Login{% endblock %}
+{% block head %}Login{% endblock %}
+{% block navbar %}
+ <li class="active"><a href="{% url 'home' %}">Home</a></li>
+      <li><a href="{% url 'login' %}">Login</a></li>
+      <li><a href="{% url 'register_page' %}">Signup</a></li>
+      
+     {% endblock %}
+{% block content %}
+<center>
+    {% if form.errors %}
+        <p>Your username and password didn't match. Please try again.</p>
+        
+    {% endif %}
+    <h3>Login Here</h3>
+    <form method="post" action=".">{% csrf_token %}
+        <table border="0">
+            <tr><th><label for="id_username">Username:</label></th><td>{{ form.username }}</td></tr>
+            <tr><th><label for="id_password">Password:</label></th><td>{{ form.password }}</td></tr>
+        </table>
+        <br>
+        <input type="submit" class="btn btn-primary"value="Login" />
+        <input type="hidden" class="btn btn-primary"name="next" value="{% url 'next_login' %}" />
+    </form>
+    <a href="/register">Register</a>
+    </center>
+    <br><br>
+    <center>
+        <div class="alert alert-info">
+            For any queries, please mail us at info@fossee.in
+        </div>
+        <br><br>
+        <iframe id="video_frame" allowfullscreen="" src="https://youtube.com/embed/34M-vS2-9Pc" width="640" height="480" frameborder="0">
+        </iframe>
+    </center>
+{% endblock %}
