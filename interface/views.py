@@ -230,8 +230,9 @@ def show_review_questions(request):
         status = "moderator"
     if is_reviewer(user):
         ques_bank,created = QuestionBank.objects.get_or_create(user=user)
-        questions = get_reviewer_questions(user, ques_bank)
-        ques_bank.question_bank.add(*questions)
+        if ques_bank.question_bank.all().count() < 10:
+            questions = get_reviewer_questions(user, ques_bank)
+            ques_bank.question_bank.add(*questions)
         context['questions'] = ques_bank.question_bank.all()
         status = "reviewer"
     context['status'] = status
