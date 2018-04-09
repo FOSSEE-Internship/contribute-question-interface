@@ -282,7 +282,10 @@ def check_question(request, question_id):
         return redirect("/postreview/skip/{0}".format(question.id))
 
     context['question'] = question
-    context['last_answer'] = review.last_answer
+    if review.last_answer:
+        context['last_answer'] = review.last_answer.encode('unicode-escape')
+    else:
+        context['last_answer'] = None
     context['correct_answer'] = review.correct_answer
     return render(request, "checkquestion.html", context)
 
