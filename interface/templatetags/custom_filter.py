@@ -30,3 +30,11 @@ def get_testcase_error(error_list, expected_output):
             tc_error = error
             success = True
     return {"tc_error":tc_error, "success":success}
+
+@register.simple_tag
+def get_review_status(question, user):
+    try:
+        review_status = question.reviews.get(reviewer=user).status
+    except:
+        review_status = False
+    return review_status

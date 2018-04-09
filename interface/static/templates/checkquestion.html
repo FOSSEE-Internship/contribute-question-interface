@@ -71,11 +71,17 @@
   // Setting code editors initial content
 </script>
 <br>
+{% if not correct_answer %}
 <button class="btn btn-success" type="submit" name="check" id="check" >
   <span class="glyphicon glyphicon-cog"></span>
    Check Answer
- </button>&nbsp;&nbsp;
-
+ </button>
+{% else %}
+<a href="{% url 'post_review' 'submit' question.id %}" class="btn btn-success">
+Submit Review
+</a>
+{% endif %}
+ &nbsp;&nbsp;
 
 <a href="{% url 'show_review_questions' %}" class="btn btn-primary">
   <span class="glyphicon glyphicon-arrow-left"></span>

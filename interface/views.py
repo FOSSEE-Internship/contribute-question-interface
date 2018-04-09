@@ -1,6 +1,5 @@
 from interface.models import (Question, TestCase, StdIOBasedTestCase,
-                              AverageRating, Review, QuestionBank
-                              )
+                              AverageRating, Review, QuestionBank)
 from yaksh.settings import CODESERVER_HOSTNAME,CODESERVER_PORT
 from interface.forms import (RegistrationForm, QuestionForm,
                              SkipForm, ReviewForm
@@ -225,6 +224,7 @@ def get_result(url, uid):
 def show_review_questions(request):
     user = request.user
     context = {}
+    context["user"] = user
     if is_moderator(user):
         context['questions'] = Question.objects.filter(status=True)
         status = "moderator"
@@ -253,9 +253,9 @@ def get_reviewer_questions(user, question_bank):
     random.shuffle(questions)
 
     all_questions = questions[:(10-question_bank.question_bank.count())]
-    mod_group = Group.objects.get(name="moderator").user_set.all()
-    mod_questions = Question.objects.filter(user=mod_group)
-    if mod_questions:
+    mod_group = Group.objects.get(name="moderator").user_set.all().values_list("id", flat=True)
+    mod_questions = Question.objects.filter(user_id__in=mod_group)
+    if mod_questions.count() > 0:
         mod_choice = random.choice(mod_questions)
         all_questions[-1] = mod_choice
     return all_questions
@@ -286,12 +286,18 @@ def check_question(request, question_id):
             if not result.get("success"):
                 context["result"] = result.get("error")
             elif result.get("success"):
+                review.correct_answer = True
+                review.save()
                 return redirect("/postreview/submit/{0}".format(question.id))
     elif request.method == 'POST' and 'skip' in request.POST:
         return redirect("/postreview/skip/{0}".format(question.id))
 
     context['question'] = question
-    context['last_answer'] = review.last_answer
+    if review.last_answer:
+        context['last_answer'] = review.last_answer.encode('unicode-escape')
+    else:
+        context['last_answer'] = None
+    context['correct_answer'] = review.correct_answer
     return render(request, "checkquestion.html", context)
 
 @login_required
@@ -308,24 +314,26 @@ def post_review(request, submit, question_id):
         if request.method == 'POST':
             qform = SkipForm(request.POST, instance=review)
             if qform.is_valid():
-                qform.save()
-                messages.add_message(request, messages.SUCCESS,
-                                    """Your review has been
-                                       successfully submitted.
-                                    """
-                                    )
+                question_review = qform.save(commit=False)
+                question_review.skipped = True
+                question_review.status = True
+                question_review.save()
                 return redirect("/dashboard")
     else:
-        rform = ReviewForm(instance=review)
-        if request.method == 'POST':
-            qform = ReviewForm(request.POST, instance=review)
-            if qform.is_valid():
-                qform.save()
-                messages.add_message(request, messages.SUCCESS,
-                                    """Your review has been
-                                       successfully submitted.
-                                    """
-                                    )
-                return redirect("/dashboard")
+        if review.correct_answer:
+            rform = ReviewForm(instance=review)
+            if request.method == 'POST':
+                qform = ReviewForm(request.POST, instance=review)
+                if qform.is_valid():
+                    question_review = qform.save(commit=False)
+                    question_review.skipped = False
+                    question_review.status = True
+                    question_review.reasons_for_skip = None
+                    question_review.save()
+                    return redirect("/dashboard")
+        else:
+            return redirect("/dashboard")
     context["rform"] = rform
-    return render(request, "skipquestion.html", context)
+    context["submit"] = submit
+    context["question"] = question
+    return render(request, "submit_review.html", context)
