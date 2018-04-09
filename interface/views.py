@@ -67,10 +67,11 @@ def logout_page(request):
 def next_login(request):
     user = request.user
     if user.is_authenticated():
-        group = Group.objects.filter(name="reviewer")
-        if group.exists():
-            user.groups.add(*group)
-        if is_reviewer(request.user):
+        if not is_moderator(user) and not is_reviewer(user):
+            group = Group.objects.filter(name="reviewer")
+            if group.exists():
+                user.groups.add(*group)
+        if is_reviewer(user):
             return show_review_questions(request)
         return render(request, 'dashboard.html')
     else:
