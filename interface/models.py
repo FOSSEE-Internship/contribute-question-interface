@@ -138,7 +138,7 @@ class Review(models.Model):
     last_answer = models.TextField(null=True, blank=True)
 
     def __str__(self):  
-        return "Review by {0}".format(self.reviewer.get_full_name())
+        return "Review by {0}".format(self.reviewer.username)
 
 
 class QuestionBank(models.Model):

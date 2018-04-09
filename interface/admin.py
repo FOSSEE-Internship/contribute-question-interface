@@ -11,6 +11,7 @@ admin.site.register(Review)
 
 
 class ReviewerAdmin(admin.ModelAdmin):
+    search_fields = ['username' ]
     actions = ['make_reviewer', 'remove_reviewer']
 
     def make_reviewer(self, request, users):
