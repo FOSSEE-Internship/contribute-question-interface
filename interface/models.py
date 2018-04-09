@@ -140,7 +140,7 @@ class Review(models.Model):
     correct_answer = models.BooleanField(default=False)
 
     def __str__(self):  
-        return "Review by {0}".format(self.reviewer.get_full_name())
+        return "Review by {0}".format(self.reviewer.username)
 
 
 class QuestionBank(models.Model):
