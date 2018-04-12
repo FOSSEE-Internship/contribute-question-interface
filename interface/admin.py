@@ -44,6 +44,7 @@ class ReviewerAdmin(admin.ModelAdmin):
     remove_reviewer.short_description = "Remove Users from reviewer Group"
 
 class QuestionAdmin(admin.ModelAdmin):
+    search_fields = ['user__username', 'summary']
     list_display = ["summary", "user", 'status']
     actions = ["update_question_status"]
 

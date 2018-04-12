@@ -254,7 +254,8 @@ def get_reviewer_questions(user, question_bank):
     random.shuffle(questions)
 
     all_questions = questions[:(10-question_bank.question_bank.count())]
-    mod_group = Group.objects.get(name="moderator").user_set.all().values_list("id", flat=True)
+    mod_group = Group.objects.get(name="moderator").user_set.all()\
+                              .values_list("id", flat=True)
     mod_questions = Question.objects.filter(user_id__in=mod_group)
     if mod_questions.count() > 0:
         mod_choice = random.choice(mod_questions)
