@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 import json
 
+
 question_skip_choices = (
         (1, "Question doesn't make sense."),
         (2, "Question makes sense, but is too difficult to solve."),
@@ -120,6 +121,26 @@ class AverageRating(models.Model):
 
     def __str__(self):  
         return "Average Rating for {0}".format(self.question.summary)
+
+    def set_average_marks(self):
+        reviews = self.question.reviews.all()
+        mod_marks, reviewer_marks = [],[]
+        for review in reviews:
+            if review.status and review.correct_answer:
+                if review.reviewer.groups.filter(name='moderator').exists():
+                    mod_marks.append(review.rating)
+                elif review.reviewer.groups.filter(name='reviewer').exists():
+                    reviewer_marks.append(review.rating)
+        if mod_marks:
+            self.avg_moderator_rating = round(
+                                        sum(mod_marks)/len(mod_marks), 2
+                                        )
+        if reviewer_marks:
+            self.avg_peer_rating = round(
+                                    sum(reviewer_marks)/len(reviewer_marks),2
+                                    )
+        self.save()
+        return self.avg_moderator_rating, self.avg_peer_rating
 
 
 class Review(models.Model):

@@ -44,6 +44,7 @@ class ReviewerAdmin(admin.ModelAdmin):
     remove_reviewer.short_description = "Remove Users from reviewer Group"
 
 class QuestionAdmin(admin.ModelAdmin):
+    search_fields = ['user__username', 'summary']
     list_display = ["summary", "user", 'status']
     actions = ["update_question_status"]
 
@@ -71,7 +72,37 @@ class QuestionAdmin(admin.ModelAdmin):
     update_question_status.short_description = """Check and update
                                                   question status"""
 
+
+class AverageRatingAdmin(admin.ModelAdmin):
+    search_fields = ['question__summary']
+    list_display = ["question", "avg_moderator_rating",
+                     "avg_peer_rating"
+                     ]
+    ordering = ["-avg_peer_rating"]
+    actions = ["update_ratings"]
+
+    def update_ratings(self, request, questions):
+        try:
+            selected_questions = Question.objects.filter(id__in=questions)
+            for question in selected_questions:
+                ratings = AverageRating.objects.get(question=question)
+                ratings.set_average_marks()
+            messages.add_message(request, messages.SUCCESS,
+                                 "Ratings updated."
+                                 )
+
+        except Exception as e:
+            messages.add_message(request, messages.ERROR,
+                                 'You have an error:\n {0}.'.format(e)
+                                 )
+
+    update_ratings.short_description = """Update marks for
+                                                   selected questions
+                                                """
+
 admin.site.unregister(User)
 admin.site.register(User, ReviewerAdmin)
+admin.site.unregister(AverageRating)
+admin.site.register(AverageRating, AverageRatingAdmin)
 admin.site.unregister(Question)
 admin.site.register(Question, QuestionAdmin)
