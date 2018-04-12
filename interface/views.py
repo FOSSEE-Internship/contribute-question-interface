@@ -227,15 +227,19 @@ def show_review_questions(request):
     context = {}
     context["user"] = user
     if is_moderator(user):
-        context['questions'] = Question.objects.filter(status=True)
+        questions = Question.objects.filter(status=True)
         status = "moderator"
     if is_reviewer(user):
         ques_bank,created = QuestionBank.objects.get_or_create(user=user)
         if ques_bank.question_bank.all().count() < 10:
-            questions = get_reviewer_questions(user, ques_bank)
-            ques_bank.question_bank.add(*questions)
-        context['questions'] = ques_bank.question_bank.all()
+            quests = get_reviewer_questions(user, ques_bank)
+            ques_bank.question_bank.add(*quests)
+        questions = ques_bank.question_bank.all()
         status = "reviewer"
+    for question in questions:
+        rating, stat = AverageRating.objects.get_or_create(question=question)
+        rating.set_average_marks()
+    context['questions'] = questions
     context['status'] = status
     return render_to_response(
         "show_review_questions.html", context
