@@ -85,7 +85,9 @@ class AverageRatingAdmin(admin.ModelAdmin):
         try:
             selected_questions = Question.objects.filter(id__in=questions)
             for question in selected_questions:
-                ratings = AverageRating.objects.get(question=question)
+                ratings,status = AverageRating.objects.get_or_create(
+                                                question=question
+                                                )
                 ratings.set_average_marks()
             messages.add_message(request, messages.SUCCESS,
                                  "Ratings updated."

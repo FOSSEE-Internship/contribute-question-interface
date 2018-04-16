@@ -227,7 +227,11 @@ def show_review_questions(request):
     context = {}
     context["user"] = user
     if is_moderator(user):
-        questions = Question.objects.filter(status=True)
+        ques_bank,created = QuestionBank.objects.get_or_create(user=user)
+        if ques_bank.question_bank.all().count() < 100:
+            quests = get_moderator_questions(user, ques_bank)
+            ques_bank.question_bank.add(*quests)
+        questions = ques_bank.question_bank.all()
         status = "moderator"
     if is_reviewer(user):
         ques_bank,created = QuestionBank.objects.get_or_create(user=user)
@@ -265,6 +269,25 @@ def get_reviewer_questions(user, question_bank):
         mod_choice = random.choice(mod_questions)
         all_questions[-1] = mod_choice
     return all_questions
+
+
+def get_moderator_questions(user, question_bank):
+    all_questions = []
+    moderators = Group.objects.get(name="moderator")\
+                       .user_set.all().exclude(id=user.id)\
+                       .values_list("id", flat=True)
+    mod_qb = QuestionBank.objects.filter(user_id__in=moderators)
+    for q in mod_qb:
+        user_question = q.question_bank.all().values_list("id", flat=True)
+        all_questions.extend(user_question)
+    if all_questions:
+        remaining = Question.objects.filter(status=True)\
+                             .exclude(id__in=all_questions)
+    else:
+        remaining = Question.objects.filter(status=True)
+    random.shuffle(list(remaining))
+    questions = remaining[:(100-question_bank.question_bank.count())]
+    return questions
 
 @login_required
 def check_question(request, question_id):
