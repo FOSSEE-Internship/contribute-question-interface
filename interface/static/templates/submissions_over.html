@@ -1,0 +1,25 @@
+{% extends "navigation.html" %}
+{% block navbar %}
+<li class="active"><a href="{% url 'home' %}">Home</a></li>
+<li><a href="https://python.fossee.in/fellowship2018/">Contribution</a></li>
+<li><a href="https://yaksh-contribution.readthedocs.io" target="_blank">Instructions</a></li>
+<li><a href="{% url 'logout_page' %}">Logout</a></li>
+{% endblock %}
+
+{% block content %}
+<html lang="en">
+<head></head>
+
+<div class="container">
+
+  <br><br>
+  <h1>Sorry !!!</h1><br/>
+  <h3>
+  Submissions for FOSSEE Fellowship 2018 are now over. Please comeback later.
+  </h3>
+  </center>
+</div>
+
+</body>
+</html>
+{% endblock %}

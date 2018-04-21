@@ -72,6 +72,8 @@ def next_login(request):
             if group.exists():
                 user.groups.add(*group)
         if is_reviewer(user):
+            return task_closed(request)
+        if is_moderator(user):
             return show_review_questions(request)
         return render(request, 'dashboard.html')
     else:
@@ -234,6 +236,7 @@ def show_review_questions(request):
         questions = ques_bank.question_bank.all()
         status = "moderator"
     if is_reviewer(user):
+        return task_closed(request)
         ques_bank,created = QuestionBank.objects.get_or_create(user=user)
         if ques_bank.question_bank.all().count() < 10:
             quests = get_reviewer_questions(user, ques_bank)
@@ -297,6 +300,8 @@ def check_question(request, question_id):
     context = {}
     if not is_reviewer(user) and not is_moderator(user):
         raise Http404("You are not allowed to view this page.")
+    if is_reviewer(user):
+        return task_closed(request)
 
     try:
         question = Question.objects.get(id=question_id)
@@ -333,6 +338,8 @@ def check_question(request, question_id):
 def post_review(request, submit, question_id):
     user = request.user
     context = {}
+    if is_reviewer(user):
+        return task_closed(request)
     try:
         question = Question.objects.get(id=question_id)
     except Question.DoesNotExist:
@@ -366,3 +373,6 @@ def post_review(request, submit, question_id):
     context["submit"] = submit
     context["question"] = question
     return render(request, "submit_review.html", context)
+
+def task_closed(request):
+    return render(request, "submissions_over.html")
