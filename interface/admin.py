@@ -1,8 +1,9 @@
 from django.contrib import admin, messages
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import GroupAdmin
+from django.http import HttpResponse
 from interface.models import Question, TestCase, AverageRating, Review
-from interface.views import submit_to_code_server
+from interface.views import submit_to_code_server, is_moderator
 
 admin.site.register(Question)
 admin.site.register(TestCase)
@@ -79,7 +80,44 @@ class AverageRatingAdmin(admin.ModelAdmin):
                      "avg_peer_rating"
                      ]
     ordering = ["-avg_peer_rating"]
-    actions = ["update_ratings"]
+    actions = ["update_ratings", "get_unreviewed_questions"]
+
+    def get_unreviewed_questions(self, request, selected_reviews):
+        users = User.objects.all()
+        qualified = []
+        for user in users:
+            if not is_moderator(user) \
+            and Review.objects.filter(reviewer=user,status=True).count()==10\
+             and Question.objects.filter(user=user, status=True).count()==5:
+                qualified.append(user)
+
+        question = Question.objects.get(id=475)
+        cited_users = []
+        for user in qualified:
+            try:
+                if question.reviews.get(reviewer=user).check_citation == False:
+                    cited_users.append(user)
+            except:
+                pass
+
+        qualified_questions = []
+        for user in cited_users:
+            qualified_questions.extend(
+                Question.objects.filter(user=user,status=True)
+                )
+
+        unreviewed_questions = []
+        for question in qualified_questions:
+            for review in question.reviews.all():
+                if review and is_moderator(review.reviewer):
+                    break
+            else:
+                unreviewed_questions.append(question.id)
+        filename = "unreviewed_questions.txt"
+        content = str(unreviewed_questions)
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+        return response
 
     def update_ratings(self, request, questions):
         try:
@@ -101,6 +139,9 @@ class AverageRatingAdmin(admin.ModelAdmin):
     update_ratings.short_description = """Update marks for
                                                    selected questions
                                                 """
+    get_unreviewed_questions.short_description = """Get unreviewed questions
+                                                """
+
 
 admin.site.unregister(User)
 admin.site.register(User, ReviewerAdmin)
