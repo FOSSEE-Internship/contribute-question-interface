@@ -109,7 +109,8 @@ class AverageRatingAdmin(admin.ModelAdmin):
         unreviewed_questions = []
         for question in qualified_questions:
             for review in question.reviews.all():
-                if review and is_moderator(review.reviewer):
+                if review and is_moderator(review.reviewer)\
+                and review.status:
                     break
             else:
                 unreviewed_questions.append(question.id)
