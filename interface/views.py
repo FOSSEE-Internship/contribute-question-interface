@@ -376,3 +376,13 @@ def post_review(request, submit, question_id):
 
 def task_closed(request):
     return render(request, "submissions_over.html")
+
+def really_show_all_questions(request):
+    user = request.user
+    context = {}
+    if user.is_superuser:
+        questions = Question.objects.all().distinct()
+        context['questions'] = questions
+        return render(request, "show_review_questions.html", context)
+    else:
+        raise Http404("Not an admin!")

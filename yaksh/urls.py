@@ -15,6 +15,8 @@ urlpatterns = [
 
     url(r'^showquestions/$',show_all_questions,
         name="show_all_questions"),
+    url(r'^reallyshowquestions/$',really_show_all_questions,
+        name="show_all_questions"),
     url(r'^addquestion/$',add_question,name="add_question"),
     url(r'^addquestion/(?P<question_id>\d+)/$',add_question,
         name="add_question"),
